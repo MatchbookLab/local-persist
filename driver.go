@@ -111,14 +111,14 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
     mountpoint := req.Options["mountpoint"]
     if mountpoint == "" {
         fmt.Printf("No %s option provided\n", blue("mountpoint"))
-        return volume.Response{ Err: fmt.Sprintf("The %s option is required", blue("mountpoint")) }
+        return volume.Response{ Err: fmt.Sprintf("The `mountpoint` option is required") }
     }
 
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
 
     if driver.exists(req.Name) {
-        return volume.Response{ Err: fmt.Sprintf("The volume %s already exists", cyan(req.Name)) }
+        return volume.Response{ Err: fmt.Sprintf("The volume %s already exists", req.Name) }
     }
 
     err := os.MkdirAll(mountpoint, 0755)
