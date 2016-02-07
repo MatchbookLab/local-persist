@@ -1,1 +1,4 @@
 .idea/
+
+*.iml
+coverage.out

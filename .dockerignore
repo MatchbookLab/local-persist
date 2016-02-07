@@ -4,3 +4,6 @@
 .gitignore
 *.yml
 .editorconfig
+*.iml
+coverage.out
+*_test.go
