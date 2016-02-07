@@ -8,6 +8,17 @@ import (
     "github.com/docker/go-plugins-helpers/volume"
     "github.com/docker/engine-api/client"
     "github.com/docker/engine-api/types"
+    "github.com/fatih/color"
+)
+
+var (
+    // red = color.New(color.FgRed).SprintFunc()
+    // green = color.New(color.FgGreen).SprintFunc()
+    yellow = color.New(color.FgYellow).SprintFunc()
+    cyan = color.New(color.FgCyan).SprintFunc()
+    blue = color.New(color.FgBlue).SprintFunc()
+    magenta = color.New(color.FgMagenta).SprintFunc()
+    white = color.New(color.FgWhite).SprintFunc()
 )
 
 type localPersistDriver struct {
@@ -18,6 +29,9 @@ type localPersistDriver struct {
 }
 
 func newLocalPersistDriver() localPersistDriver {
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s      ", white("Starting... "))
+
     driver := localPersistDriver{
         volumes : map[string]string{},
 		mutex   : &sync.Mutex{},
@@ -55,37 +69,38 @@ func newLocalPersistDriver() localPersistDriver {
         }
     }
 
-    fmt.Printf("Found %d volumes on startup\n", len(driver.volumes))
+    fmt.Printf("Found %s volumes on startup\n", yellow(len(driver.volumes)))
 
     return driver
 }
 
 func (driver localPersistDriver) Get(req volume.Request) volume.Response {
-    fmt.Print("Get Called... ")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s    ", white("Get Called... "))
 
     if driver.exists(req.Name) {
-        fmt.Printf("[%s] was found\n", req.Name)
+        fmt.Printf("Found %s\n", cyan(req.Name))
         return volume.Response{
             Volume: driver.volume(req.Name),
         }
     }
 
-    fmt.Printf("[%s] not found\n", req.Name)
+    fmt.Printf("Couldn't find %s\n", cyan(req.Name))
     return volume.Response{
-        Err: fmt.Sprintf("No volume found with the name [%s]", req.Name),
+        Err: fmt.Sprintf("No volume found with the name %s", cyan(req.Name)),
     }
-
 }
 
 func (driver localPersistDriver) List(req volume.Request) volume.Response {
-    fmt.Print("List Called... ")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s   ", white("List Called... "))
 
     var volumes []*volume.Volume
     for name, _ := range driver.volumes {
         volumes = append(volumes, driver.volume(name))
     }
 
-    fmt.Printf("Found %d volumes\n", len(volumes))
+    fmt.Printf("Found %s volumes\n", yellow(len(volumes)))
 
     return volume.Response{
         Volumes: volumes,
@@ -93,56 +108,73 @@ func (driver localPersistDriver) List(req volume.Request) volume.Response {
 }
 
 func (driver localPersistDriver) Create(req volume.Request) volume.Response {
-    fmt.Println("Create Called...")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s ", white("Create Called... "))
+
     mountpoint := req.Options["mountpoint"]
     if mountpoint == "" {
-        return volume.Response{ Err: "The `mountpoint` option is required" }
+        fmt.Printf("No %s option provided\n", blue("mountpoint"))
+        return volume.Response{ Err: fmt.Sprintf("The %s option is required", blue("mountpoint")) }
     }
 
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
 
     if driver.exists(req.Name) {
-        return volume.Response{ Err: fmt.Sprintf("The volume [%s] already exists", req.Name) }
+        return volume.Response{ Err: fmt.Sprintf("The volume %s already exists", cyan(req.Name)) }
     }
 
     err := os.MkdirAll(mountpoint, 0755)
+    fmt.Printf("Ensuring directory %s exists on host...\n", magenta(mountpoint))
 
     if err != nil {
+        fmt.Printf("%-17s Could not create directory %s\n", " ", magenta(mountpoint))
         return volume.Response{ Err: err.Error() }
     }
 
     driver.volumes[req.Name] = mountpoint
 
-    fmt.Printf("Creating volume [%s] mounted at [%s]\n", req.Name, mountpoint)
+    fmt.Printf("%-17s Created volume %s with mountpoint %s\n", " ", cyan(req.Name), magenta(mountpoint))
 
     return volume.Response{}
 }
 
 func (driver localPersistDriver) Remove(req volume.Request) volume.Response {
-    fmt.Println("Remove Called...")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s ", white("Remove Called... "))
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
 
     delete(driver.volumes, req.Name)
 
+    fmt.Printf("Removed %s\n", cyan(req.Name))
+
     return volume.Response{}
 }
 
 func (driver localPersistDriver) Mount(req volume.Request) volume.Response {
-    fmt.Println("Mount Called...")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s  ", white("Mount Called... "))
+
+    fmt.Printf("Mounted %s\n", cyan(req.Name))
 
     return driver.Path(req)
 }
 
 func (driver localPersistDriver) Path(req volume.Request) volume.Response {
-    fmt.Println("Path Called...")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s   ", white("Path Called... "))
+
+    fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
 
     return volume.Response{ Mountpoint:  driver.volumes[req.Name] }
 }
 
 func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
-    fmt.Println("Unmount Called...")
+    // %-18s doesn't work with `color` :-(
+    fmt.Printf("%s", white("Unmount Called... "))
+
+    fmt.Printf("Unmounted %s\n", cyan(req.Name))
 
     return driver.Path(req)
 }
