@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+    one:
+        image: debian:jessie
+        working_dir: /one/
+        command: top
+        tty: true
+        volumes:
+            - dataM:/one/
+
+    two:
+        image: debian:jessie
+        working_dir: /two/
+        command: top
+        tty: true
+        volumes:
+            - dataM:/two/
+
+volumes:
+    dataM:
+        driver: disk
+        driver_opts:
+            mountpoint: /data/disk/dataM
