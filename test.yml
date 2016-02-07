@@ -7,7 +7,7 @@ services:
         command: top
         tty: true
         volumes:
-            - dataM:/one/
+            - data:/one/
 
     two:
         image: debian:jessie
@@ -15,10 +15,10 @@ services:
         command: top
         tty: true
         volumes:
-            - dataM:/two/
+            - data:/two/
 
 volumes:
-    dataM:
-        driver: disk
+    data:
+        driver: local-persist
         driver_opts:
-            mountpoint: /data/disk/dataM
+            mountpoint: /data/local-persist/data
