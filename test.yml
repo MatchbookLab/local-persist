@@ -1,24 +1,24 @@
 version: '2'
 
 services:
-    one:
-        image: debian:jessie
-        working_dir: /one/
-        command: top
-        tty: true
-        volumes:
-            - data:/one/
+  one:
+    image: debian:jessie
+    working_dir: /one/
+    command: top
+    tty: true
+    volumes:
+      - data:/one/
 
-    two:
-        image: debian:jessie
-        working_dir: /two/
-        command: top
-        tty: true
-        volumes:
-            - data:/two/
+  two:
+    image: debian:jessie
+    working_dir: /two/
+    command: top
+    tty: true
+    volumes:
+      - data:/two/
 
 volumes:
-    data:
-        driver: local-persist
-        driver_opts:
-            mountpoint: /data/local-persist/data
+  data:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /data/local-persist/data
