@@ -29,6 +29,7 @@ func newLocalPersistDriver() localPersistDriver {
     defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
     cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
     if err != nil {
+        // we want full-on exits here if we have failed already!
         panic(err)
     }
 
@@ -40,6 +41,7 @@ func newLocalPersistDriver() localPersistDriver {
     for _, container := range containers {
         info, err := cli.ContainerInspect(container.ID)
         if err != nil {
+            // we want full-on exits here if we have failed already!
             panic(err)
         }
 
@@ -100,9 +102,13 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
 
+    if driver.exists(req.Name) {
+        return volume.Response{ Err: fmt.Sprintf("The volume [%s] already exists", req.Name) }
+    }
+
     err := os.MkdirAll(mountpoint, 0755)
 
-    if (err != nil) {
+    if err != nil {
         return volume.Response{ Err: err.Error() }
     }
 
