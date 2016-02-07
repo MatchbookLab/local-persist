@@ -10,21 +10,19 @@ import (
     "github.com/docker/engine-api/types"
 )
 
-const (
-    driverName = "disk"
-)
-
-type diskDriver struct {
+type localPersistDriver struct {
     volumes    map[string]string
     mutex      *sync.Mutex
     debug      bool
+    name       string
 }
 
-func newDiskDriver() diskDriver {
-    driver := diskDriver{
+func newLocalPersistDriver() localPersistDriver {
+    driver := localPersistDriver{
         volumes : map[string]string{},
 		mutex   : &sync.Mutex{},
         debug   : true,
+        name    : "local-persist",
     }
 
     // set up the ability to make API calls to the daemon
@@ -46,7 +44,7 @@ func newDiskDriver() diskDriver {
         }
 
         for _, mount := range info.Mounts {
-            if mount.Driver == driverName {
+            if mount.Driver == driver.name {
                 // @TODO there could be multiple volumes (mounts) with this { name: source } combo, and while that's okay
                 // what if they is the same name with a different source? could that happen? if it could,
                 // it'd be bad, so maybe we want to panic here?
@@ -55,11 +53,13 @@ func newDiskDriver() diskDriver {
         }
     }
 
+    fmt.Printf("Found %d volumes on startup\n", len(driver.volumes))
+
     return driver
 }
 
-func (driver diskDriver) Get(req volume.Request) volume.Response {
-    fmt.Println("Get Called...")
+func (driver localPersistDriver) Get(req volume.Request) volume.Response {
+    fmt.Print("Get Called... ")
 
     if driver.exists(req.Name) {
         fmt.Printf("[%s] was found\n", req.Name)
@@ -75,8 +75,8 @@ func (driver diskDriver) Get(req volume.Request) volume.Response {
 
 }
 
-func (driver diskDriver) List(req volume.Request) volume.Response {
-    fmt.Println("List Called...")
+func (driver localPersistDriver) List(req volume.Request) volume.Response {
+    fmt.Print("List Called... ")
 
     var volumes []*volume.Volume
     for name, _ := range driver.volumes {
@@ -90,7 +90,7 @@ func (driver diskDriver) List(req volume.Request) volume.Response {
     }
 }
 
-func (driver diskDriver) Create(req volume.Request) volume.Response {
+func (driver localPersistDriver) Create(req volume.Request) volume.Response {
     fmt.Println("Create Called...")
     mountpoint := req.Options["mountpoint"]
     if mountpoint == "" {
@@ -113,7 +113,7 @@ func (driver diskDriver) Create(req volume.Request) volume.Response {
     return volume.Response{}
 }
 
-func (driver diskDriver) Remove(req volume.Request) volume.Response {
+func (driver localPersistDriver) Remove(req volume.Request) volume.Response {
     fmt.Println("Remove Called...")
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
@@ -123,30 +123,30 @@ func (driver diskDriver) Remove(req volume.Request) volume.Response {
     return volume.Response{}
 }
 
-func (driver diskDriver) Mount(req volume.Request) volume.Response {
+func (driver localPersistDriver) Mount(req volume.Request) volume.Response {
     fmt.Println("Mount Called...")
 
     return driver.Path(req)
 }
 
-func (driver diskDriver) Path(req volume.Request) volume.Response {
+func (driver localPersistDriver) Path(req volume.Request) volume.Response {
     fmt.Println("Path Called...")
 
     return volume.Response{ Mountpoint:  driver.volumes[req.Name] }
 }
 
-func (driver diskDriver) Unmount(req volume.Request) volume.Response {
+func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
     fmt.Println("Unmount Called...")
 
     return driver.Path(req)
 }
 
 
-func (driver diskDriver) exists(name string) bool {
+func (driver localPersistDriver) exists(name string) bool {
     return driver.volumes[name] != ""
 }
 
-func (driver diskDriver) volume(name string) *volume.Volume {
+func (driver localPersistDriver) volume(name string) *volume.Volume {
     return &volume.Volume{
         Name: name,
         Mountpoint: driver.volumes[name],

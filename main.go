@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-    driver := newDiskDriver()
+    driver := newLocalPersistDriver()
 
     handler := volume.NewHandler(driver)
-    fmt.Println(handler.ServeUnix("root", "disk"))
+    fmt.Println(handler.ServeUnix("root", driver.name))
 }
