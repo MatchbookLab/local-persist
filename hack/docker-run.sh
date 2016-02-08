@@ -5,7 +5,7 @@ if [[ ! -e $DATA_VOLUME ]]; then
     exit 1
 fi
 
-CMD="docker run -d -v /run/docker/plugins/:/run/docker/plugins/ -v ${DATA_VOLUME}:${DATA_VOLUME} --restart always cwspear/docker-local-persist-volume-plugin"
+CMD="docker run -d -v /run/docker/plugins/:/run/docker/plugins/ -v ${DATA_VOLUME}:${DATA_VOLUME} cwspear/docker-local-persist-volume-plugin"
 
 echo $CMD
 exec $CMD

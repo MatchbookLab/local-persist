@@ -8,3 +8,5 @@ hack
 *.iml
 coverage.out
 *_test.go
+*.md
+LICENSE
