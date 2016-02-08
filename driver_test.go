@@ -9,7 +9,7 @@ import(
 
 var (
     defaultTestName = "test-volume"
-    defaultTestMountpoint = "/data/local-persist-test"
+    defaultTestMountpoint = "/tmp/data/local-persist-test"
 )
 
 func TestCreate(t *testing.T) {
