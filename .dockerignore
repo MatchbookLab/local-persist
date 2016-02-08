@@ -1,5 +1,6 @@
 .idea
 .git
+hack
 
 .gitignore
 *.yml
