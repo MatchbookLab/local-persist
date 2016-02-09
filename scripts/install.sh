@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.0.0-beta.1"
+VERSION="v1.0.0-beta.2"
 
 # uname -s, uname -m
 # Deb 32: Linux i686
