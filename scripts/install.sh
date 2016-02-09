@@ -50,6 +50,7 @@ function setenv {
 
 function install-binary {
     echo Stopping docker-volume-local-persist service if running
+    echo ''
     if [[ $* == *--upstart* ]]; then
         sudo service docker-volume-local-persist stop
     else
@@ -67,6 +68,7 @@ function install-binary {
     chmod +x $BINARY_DEST
 
     echo Binary download
+    echo ''
 }
 
 function setup-upstart {
@@ -80,6 +82,7 @@ function setup-upstart {
     sudo curl -fLsS "$UPSTART_CONFIG_URL" > $UPSTART_CONFIG_DEST
 
     echo Upstart conf downloaded
+    echo ''
 }
 
 function start-upstart {
@@ -89,7 +92,8 @@ function start-upstart {
     sudo service docker-volume-local-persist start
     sudo service docker-volume-local-persist status
 
-    echo Done
+    echo ''
+    echo Done. If you see this message, that should mean it worked
 }
 
 function setup-systemd {
@@ -103,6 +107,7 @@ function setup-systemd {
     sudo curl -fLsS "$SYSTEMD_CONFIG_URL" > $SYSTEMD_CONFIG_DEST
 
     echo Systemd conf downloaded
+    echo ''
 }
 
 function start-systemd {
@@ -113,7 +118,8 @@ function start-systemd {
     sudo systemctl start docker-volume-local-persist
     sudo systemctl status docker-volume-local-persist
 
-    echo Done
+    echo ''
+    echo Done. If you see this message, that should mean it worked
 }
 
 setenv
