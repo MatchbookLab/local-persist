@@ -1,12 +1,3 @@
-.idea
-.git
-hack
-
-.gitignore
-*.yml
-.editorconfig
-*.iml
-coverage.out
+*
+!*.go
 *_test.go
-*.md
-LICENSE
