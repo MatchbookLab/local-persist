@@ -57,25 +57,27 @@ function install-binary {
     fi
 
     BINARY_URL="https://github.com/CWSpear/local-persist/releases/download/${VERSION}/local-persist-${OS}-${ARCH}"
+    BINARY_DEST="/usr/bin/docker-volume-local-persist"
 
     echo Downloading binary:
     echo "  From: $BINARY_URL"
-    echo "  To:   /usr/local/bin/docker-volume-local-persist"
+    echo "  To:   $BINARY_DEST"
 
-    curl -fLsS "$BINARY_URL" > /usr/local/bin/docker-volume-local-persist
-    chmod +x /usr/local/bin/docker-volume-local-persist
+    curl -fLsS "$BINARY_URL" > $BINARY_DEST
+    chmod +x $BINARY_DEST
 
     echo Binary download
 }
 
 function setup-upstart {
     UPSTART_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/init/upstart.conf"
+    UPSTART_CONFIG_DEST="/etc/init/docker-volume-local-persist.conf"
 
     echo Downloading binary:
     echo "  From: $UPSTART_CONFIG_URL"
-    echo "  To:   /etc/init/docker-volume-local-persist.conf"
+    echo "  To:   $UPSTART_CONFIG_DEST"
 
-    sudo curl -fLsS "$UPSTART_CONFIG_URL" > /etc/init/docker-volume-local-persist.conf
+    sudo curl -fLsS "$UPSTART_CONFIG_URL" > $UPSTART_CONFIG_DEST
 
     echo Upstart conf downloaded
 }
@@ -92,12 +94,13 @@ function start-upstart {
 
 function setup-systemd {
     SYSTEMD_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/init/systemd.service"
+    SYSTEMD_CONFIG_DEST="/etc/systemd/system/docker-volume-local-persist.service"
 
     echo Downloading Systemd service conf:
-    echo "  From: ${SYSTEMD_CONFIG_URL}"
-    echo "  To:   /etc/systemd/system/docker-volume-local-persist.service"
+    echo "  From: $SYSTEMD_CONFIG_URL"
+    echo "  To:   $SYSTEMD_CONFIG_DEST"
 
-    sudo curl -fLsS "$SYSTEMD_CONFIG_URL" > /etc/systemd/system/docker-volume-local-persist.service
+    sudo curl -fLsS "$SYSTEMD_CONFIG_URL" > $SYSTEMD_CONFIG_DEST
 
     echo Systemd conf downloaded
 }
