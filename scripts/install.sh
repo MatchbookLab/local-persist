@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 VERSION="v1.0.0-beta.2"
 
 # uname -s, uname -m
@@ -67,7 +69,7 @@ function install-binary {
 function setup-upstart {
     echo Downloading Upstart conf to /etc/init/docker-volume-local-persist.conf...
 
-    UPSTART_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/upstart/docker-volume-local-persist.conf"
+    UPSTART_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/init/upstart.conf"
 
     sudo curl -fLsS "$UPSTART_CONFIG_URL" > /etc/init/docker-volume-local-persist.conf
 

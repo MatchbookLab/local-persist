@@ -27,6 +27,14 @@ if [[ $RELEASE_DESCRIPTION == "" ]]; then
     echo ''
 fi
 
+if [[ $RELEASE_TAG == "" ]]; then
+    printf "${cyan}Enter release tag:${nocolor} v"
+    read RELEASE_TAG
+    echo ''
+
+    RELEASE_TAG="v${RELEASE_TAG}"
+fi
+
 if [[ $PRERELEASE == "" ]]; then
     printf "${cyan}Is this a prerelease? [yN]${nocolor} "
     read PRERELEASE_REPLY
@@ -39,14 +47,6 @@ if [[ $PRERELEASE == "" ]]; then
     [[ $FIRST == 'Y' || $FIRST == 'y' ]] && PRERELEASE=true
 fi
 
-if [[ $RELEASE_TAG == "" ]]; then
-    printf "${cyan}Enter release tag:${nocolor} v"
-    read RELEASE_TAG
-    echo ''
-
-    RELEASE_TAG="v${RELEASE_TAG}"
-fi
-
 sed -i '' "s|VERSION=\".*\"|VERSION=\"${RELEASE_TAG}\"|" scripts/install.sh
 
 git commit -am "Tag ${RELEASE_TAG}"
@@ -55,6 +55,14 @@ git tag -a $RELEASE_TAG -m "$RELEASE_NAME"
 git push --tags
 
 echo Releasing...
+echo ''
+echo USER=$USER
+echo REPO=$REPO
+echo RELEASE_NAME=$RELEASE_NAME
+echo RELEASE_DESCRIPTION=$RELEASE_DESCRIPTION
+echo RELEASE_TAG=$RELEASE_TAG
+echo PRERELEASE=$PRERELEASE
+echo ''
 if [[ $PRERELEASE ]]; then
     github-release release \
         --user $USER \
