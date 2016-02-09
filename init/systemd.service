@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/pkill docker-volume-local-persist
-ExecStart=/usr/local/bin/docker-volume-local-persist
+ExecStart=/usr/bin/docker-volume-local-persist
 
 [Install]
 WantedBy=multi-user.target
