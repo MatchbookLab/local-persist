@@ -1,0 +1,12 @@
+[Unit]
+Description=docker-volume-local-persist
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=pkill docker-volume-local-persist
+ExecStart=/usr/local/bin/docker-volume-local-persist
+
+[Install]
+WantedBy=multi-user.target
