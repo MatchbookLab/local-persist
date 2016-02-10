@@ -24,7 +24,7 @@ binary:
 binaries: clean-bin binary-linux-amd64
 
 clean-bin:
-	rm -Rf binary
+	rm -Rf bin
 
 # build a specific binary
 binary-linux-amd64: export GOOS=linux
