@@ -28,7 +28,7 @@ It doesn't really say *why* one way is recommended over the other, but I provide
 
 ### Running Outside a Container
 
-#### Short Way
+#### Quick Way
 
 I provide an `install` script that will download the proper binary, set up an Systemd service to start when Docker does and enable it.
 
@@ -48,14 +48,14 @@ Follow the same process to update to the latest version.
 
 #### Manual Way
 
-If you're uncomfortable running a script you downloaded off the internet with sudo, you can extract any of the steps out of the [`install.sh`](scripts/install.sh) script and run them manually. However you want to do it, the main steps are:
+If you're uncomfortable running a script you downloaded off the internet with `sudo`, you can extract any of the steps out of the [`install.sh`](scripts/install.sh) script and run them manually. However you want to do it, the main steps are:
 
 1. Download the appropriate binary from the [Releases page](https://github.com/CWSpear/local-persist/releases) for your OS and architecture.
 2. Rename the downloaded file `docker-volume-local-persist`
 3. Place it in `/usr/bin` (you can put it somewhere else, but be sure your Systemd (or similar) config reflects the change).
-4. Make sure the file is executable (`chmod +x /usr/bin/`)
+4. Make sure the file is executable (`chmod +x /usr/bin/docker-volume-local-persist`)
 5. It's enough to just run it at this point (type `docker-volume-local-persist` and hit enter) to test, etc, and if that's all you're trying to do, you're done. But if you want it to start with Docker, proceed to step 6.
-6. Download (systemd.service)[init/systemd.service]
+6. Download [systemd.service](init/systemd.service)
 7. Rename the service file to `docker-volume-local-persist.service`
 8. Move it to `/etc/systemd/system/`
 9. run `sudo systemctl daemon-reload` to reload the config
@@ -93,7 +93,7 @@ docker run -d -v images:/path/to/images/on/two/ two
 # etc
 ```
 
-Also, see [docker-compose.example.yml](https://github.com/CWSpear/docker-local-persist-volume-plugin/blob/master/docker-compose.example.yml) for an example to do something like this with Docker Compose (needs Compose 1.6+ and Engine 1.10+).
+Also, see [docker-compose.example.yml](docker-compose.example.yml) for an example to do something like this with Docker Compose (needs Compose 1.6+ which needs Engine 1.10+).
 
 ## Benefits
 

@@ -2,14 +2,14 @@ version: '2'
 
 services:
   one:
-    image: debian:jessie
+    image: alpine
     working_dir: /one/
     command: sleep 600
     volumes:
       - data:/one/
 
   two:
-    image: debian:jessie
+    image: alpine
     working_dir: /two/
     command: sleep 600
     volumes:

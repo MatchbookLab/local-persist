@@ -49,20 +49,22 @@ fi
 
 sed -i '' "s|VERSION=\".*\"|VERSION=\"${RELEASE_TAG}\"|" scripts/install.sh
 
-git commit -am "Tag ${RELEASE_TAG}"
+git commit -am "Tagged ${RELEASE_TAG}"
 git push
 git tag -a $RELEASE_TAG -m "$RELEASE_NAME"
 git push --tags
 
+echo ''
 echo Releasing...
 echo ''
 echo USER=$USER
 echo REPO=$REPO
-echo RELEASE_NAME=$RELEASE_NAME
-echo RELEASE_DESCRIPTION=$RELEASE_DESCRIPTION
+echo RELEASE_NAME="'$RELEASE_NAME'"
+echo RELEASE_DESCRIPTION="'$RELEASE_DESCRIPTION'"
 echo RELEASE_TAG=$RELEASE_TAG
 echo PRERELEASE=$PRERELEASE
 echo ''
+
 if [[ $PRERELEASE ]]; then
     github-release release \
         --user $USER \
