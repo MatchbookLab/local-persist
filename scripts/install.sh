@@ -27,19 +27,18 @@ function setenv {
                 SUPPORTED=true
             ;;
             "i686")
-                ARCH="386"
-                SUPPORTED=true
+                # ARCH="386"
+                SUPPORTED=false
             ;;
             # untested
             arm*)
-                ARCH="arm"
-                SUPPORTED=true
+                # ARCH="arm"
+                SUPPORTED=false
             ;;
         esac
     elif [[ $OS == 'freebsd' ]]; then
-        # untested for 32 bit
         ARCH=$(uname -m)
-        SUPPORTED=true
+        SUPPORTED=false
     fi
 
     if [[ $SUPPORTED == false ]]; then
