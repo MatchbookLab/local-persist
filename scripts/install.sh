@@ -71,31 +71,7 @@ function install-binary {
     echo ''
 }
 
-function setup-upstart {
-    UPSTART_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/init/upstart.conf"
-    UPSTART_CONFIG_DEST="/etc/init/docker-volume-local-persist.conf"
-
-    echo Downloading binary:
-    echo "  From: $UPSTART_CONFIG_URL"
-    echo "  To:   $UPSTART_CONFIG_DEST"
-
-    sudo curl -fLsS "$UPSTART_CONFIG_URL" > $UPSTART_CONFIG_DEST
-
-    echo Upstart conf downloaded
-    echo ''
-}
-
-function start-upstart {
-    echo Reloading Upstart config and starting docker-volume-local-persist service...
-
-    sudo initctl reload-configuration
-    sudo service docker-volume-local-persist start
-    sudo service docker-volume-local-persist status
-
-    echo ''
-    echo Done. If you see this message, that should mean it worked
-}
-
+# Systemd (default)
 function setup-systemd {
     SYSTEMD_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/init/systemd.service"
     SYSTEMD_CONFIG_DEST="/etc/systemd/system/docker-volume-local-persist.service"
@@ -119,8 +95,35 @@ function start-systemd {
     sudo systemctl status docker-volume-local-persist
 
     echo ''
-    echo Done. If you see this message, that should mean it worked
+    echo Done! If you see this message, that should mean everything is installed and is running.
 }
+
+# Upstart
+function setup-upstart {
+    UPSTART_CONFIG_URL="https://raw.githubusercontent.com/CWSpear/local-persist/${VERSION}/init/upstart.conf"
+    UPSTART_CONFIG_DEST="/etc/init/docker-volume-local-persist.conf"
+
+    echo Downloading binary:
+    echo "  From: $UPSTART_CONFIG_URL"
+    echo "  To:   $UPSTART_CONFIG_DEST"
+
+    sudo curl -fLsS "$UPSTART_CONFIG_URL" > $UPSTART_CONFIG_DEST
+
+    echo Upstart conf downloaded
+    echo ''
+}
+
+function start-upstart {
+    echo Reloading Upstart config and starting docker-volume-local-persist service...
+
+    sudo initctl reload-configuration
+    sudo service docker-volume-local-persist start
+    sudo service docker-volume-local-persist status
+
+    echo ''
+    echo Done! If you see this message, that should mean everything is installed and is running.
+}
+
 
 setenv
 
