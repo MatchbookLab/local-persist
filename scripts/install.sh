@@ -52,9 +52,9 @@ function install-binary {
     echo Stopping docker-volume-local-persist service if running
     echo ''
     if [[ $* == *--upstart* ]]; then
-        sudo service docker-volume-local-persist stop
+        (sudo service docker-volume-local-persist stop || true)
     else
-        sudo systemctl stop docker-volume-local-persist
+        (sudo systemctl stop docker-volume-local-persist || true)
     fi
 
     BINARY_URL="https://github.com/CWSpear/local-persist/releases/download/${VERSION}/local-persist-${OS}-${ARCH}"
