@@ -39,8 +39,19 @@ func newLocalPersistDriver() localPersistDriver {
         name    : "local-persist",
     }
 
+    if os.Getenv("GO_ENV") != "test" {
+        // some systems delete /run/docker/plugins for some reason, so we want to make sure this directory exists!
+        // otherwise, our plugin will silently fail to be found by docker and it will not work
+        err := os.MkdirAll("/run/docker/plugins/", 0700)
+        if err != nil {
+            // we want full-on exits here if we have failed already!
+            panic(err)
+        }
+    }
+
     // set up the ability to make API calls to the daemon
     defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
+    // need at least Docker 1.9 for named Volume support
     cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
     if err != nil {
         // we want full-on exits here if we have failed already!

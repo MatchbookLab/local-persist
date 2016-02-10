@@ -1,14 +1,11 @@
 PWD=$(shell bash -c 'pwd')
 BIN_NAME=local-persist
 
-coverage: coverage-fix
-	go tool cover -html=coverage.out
-
-coverage-fix: test
-	sed -i '' 's|'_$(PWD)'|.|g' coverage.out
+coverage:
+	GO_ENV=test go test -v -coverprofile=coverage.out ./... && sed -i '' 's|'_$(PWD)'|.|g' coverage.out && go tool cover -html=coverage.out
 
 test:
-	go test -coverprofile=coverage.out
+	GO_ENV=test go test -v ./...
 
 run:
 	sudo -E go run main.go driver.go

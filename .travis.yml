@@ -20,4 +20,4 @@ before_script:
 
 script:
   - ./scripts/integration.sh
-  - go test -v ./...
+  - make test
