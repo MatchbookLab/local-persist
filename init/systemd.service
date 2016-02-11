@@ -1,11 +1,10 @@
 [Unit]
 Description=docker-volume-local-persist
-After=docker.service
-Requires=docker.service
+Before=docker.service
+Wants=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/pkill docker-volume-local-persist
 ExecStart=/usr/bin/docker-volume-local-persist
 
 [Install]

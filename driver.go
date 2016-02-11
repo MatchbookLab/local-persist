@@ -5,6 +5,9 @@ import (
     "sync"
     "os"
     "strconv"
+    "io/ioutil"
+    "path"
+    "encoding/json"
 
     "github.com/docker/go-plugins-helpers/volume"
     "github.com/docker/engine-api/client"
@@ -22,11 +25,20 @@ var (
     white = color.New(color.FgWhite).SprintfFunc()
 )
 
+const (
+    stateDir = "/var/lib/docker/plugin-data/"
+    stateFile = "local-persist.json"
+)
+
 type localPersistDriver struct {
     volumes    map[string]string
     mutex      *sync.Mutex
     debug      bool
     name       string
+}
+
+type saveData struct {
+    State map[string]string `json:"state"`
 }
 
 func newLocalPersistDriver() localPersistDriver {
@@ -39,47 +51,9 @@ func newLocalPersistDriver() localPersistDriver {
         name    : "local-persist",
     }
 
-    if os.Getenv("GO_ENV") != "test" {
-        // some systems delete /run/docker/plugins for some reason, so we want to make sure this directory exists!
-        // otherwise, our plugin will silently fail to be found by docker and it will not work
-        err := os.MkdirAll("/run/docker/plugins/", 0700)
-        if err != nil {
-            // we want full-on exits here if we have failed already!
-            panic(err)
-        }
-    }
+    os.Mkdir(stateDir, 0700)
 
-    // set up the ability to make API calls to the daemon
-    defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-    // need at least Docker 1.9 for named Volume support
-    cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
-    if err != nil {
-        // we want full-on exits here if we have failed already!
-        panic(err)
-    }
-
-    // grab ALL containers...
-    options := types.ContainerListOptions{All: true}
-    containers, err := cli.ContainerList(options)
-
-    // ...and check to see if any of them belong to this driver and recreate their references
-    for _, container := range containers {
-        info, err := cli.ContainerInspect(container.ID)
-        if err != nil {
-            // we want full-on exits here if we have failed already!
-            panic(err)
-        }
-
-        for _, mount := range info.Mounts {
-            if mount.Driver == driver.name {
-                // @TODO there could be multiple volumes (mounts) with this { name: source } combo, and while that's okay
-                // what if they is the same name with a different source? could that happen? if it could,
-                // it'd be bad, so maybe we want to panic here?
-                driver.volumes[mount.Name] = mount.Source
-            }
-        }
-    }
-
+    _, driver.volumes = driver.findExistingVolumesFromStateFile()
     fmt.Printf("Found %s volumes on startup\n", yellow(strconv.Itoa(len(driver.volumes))))
 
     return driver
@@ -141,6 +115,10 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
     }
 
     driver.volumes[req.Name] = mountpoint
+    e := driver.saveState(driver.volumes)
+    if e != nil {
+        fmt.Println(e.Error())
+    }
 
     fmt.Printf("%17s Created volume %s with mountpoint %s\n", " ", cyan(req.Name), magenta(mountpoint))
 
@@ -153,6 +131,11 @@ func (driver localPersistDriver) Remove(req volume.Request) volume.Response {
     defer driver.mutex.Unlock()
 
     delete(driver.volumes, req.Name)
+
+    err := driver.saveState(driver.volumes)
+    if err != nil {
+        fmt.Println(err.Error())
+    }
 
     fmt.Printf("Removed %s\n", cyan(req.Name))
 
@@ -193,4 +176,75 @@ func (driver localPersistDriver) volume(name string) *volume.Volume {
         Name: name,
         Mountpoint: driver.volumes[name],
     }
+}
+
+func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, map[string]string) {
+    // set up the ability to make API calls to the daemon
+    defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
+    // need at least Docker 1.9 for named Volume support
+    cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
+    if err != nil {
+        return err, map[string]string{}
+    }
+
+    // grab ALL containers...
+    options := types.ContainerListOptions{All: true}
+    containers, err := cli.ContainerList(options)
+
+    // ...and check to see if any of them belong to this driver and recreate their references
+    var volumes = map[string]string{}
+    for _, container := range containers {
+        info, err := cli.ContainerInspect(container.ID)
+        if err != nil {
+            // something really weird happened here... PANIC
+            panic(err)
+        }
+
+        for _, mount := range info.Mounts {
+            if mount.Driver == driver.name {
+                // @TODO there could be multiple volumes (mounts) with this { name: source } combo, and while that's okay
+                // what if they is the same name with a different source? could that happen? if it could,
+                // it'd be bad, so maybe we want to panic here?
+                volumes[mount.Name] = mount.Source
+            }
+        }
+    }
+
+    if err != nil || len(volumes) == 0 {
+        fmt.Print("Attempting to load from file state...   ")
+
+        return driver.findExistingVolumesFromStateFile()
+    }
+
+    return nil, volumes
+}
+
+func (driver localPersistDriver) findExistingVolumesFromStateFile() (error, map[string]string) {
+    path := path.Join(stateDir, stateFile)
+    fileData, err := ioutil.ReadFile(path)
+    if err != nil {
+        return err, map[string]string{}
+    }
+
+    var data saveData
+    e := json.Unmarshal(fileData, &data)
+    if e != nil {
+        return e, map[string]string{}
+    }
+
+    return nil, data.State
+}
+
+func (driver localPersistDriver) saveState(volumes map[string]string) error {
+    data := saveData{
+        State: volumes,
+    }
+
+    fileData, err := json.Marshal(data)
+    if err != nil {
+        return err
+    }
+
+    path := path.Join(stateDir, stateFile)
+    return ioutil.WriteFile(path, fileData, 0600)
 }
