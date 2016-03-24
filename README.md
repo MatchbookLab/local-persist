@@ -12,7 +12,7 @@ This is great for creating standalone volumes and easily connecting them to diff
 
 Even if something like Flocker is overkill for your needs, it can still be useful to have persistent data on your host. I'm a strong advocate for "Docker for small projects" and not just huge, scaling behemoths and microservices. I wrote this out of a need on projects I'm currently working on and have in production.
 
-This `local-persist` approach gives you the same benefits of standalone Volumes that `docker create volume ...` normally affords, while also allowing you to create Volumes that *persist*, thus giving those stateful containers their state. Read below how to install and use, then read more about the [benefits](#benefits) of this approach.
+This `local-persist` approach gives you the same benefits of standalone Volumes that `docker volume create ...` normally affords, while also allowing you to create Volumes that *persist*, thus giving those stateful containers their state. Read below how to install and use, then read more about the [benefits](#benefits) of this approach.
 
 ## Installing & Running
 
@@ -82,7 +82,7 @@ For example, if I am going to persist my MySQL data for a container I'm going to
 Then to use, you can create a volume with this plugin (this example will be for a shared folder for images):
 
 ```shell
-docker create volume create -d local-persist -o mountpoint=/data/images --name=images
+docker volume create -d local-persist -o mountpoint=/data/images --name=images
 ```
 
 Then if you create a container, you can connect it to this Volume:
