@@ -12,8 +12,6 @@ install:
   - go get -v -d
 
 before_script:
-  - sudo apt-get update
-  - sudo apt-get install -y -o Dpkg::Options::="--force-confdef" docker-engine
   - make binary-linux-amd64
   - chmod +x bin/linux/amd64/local-persist
   - sudo ./bin/linux/amd64/local-persist &
