@@ -13,6 +13,7 @@ import (
     "github.com/docker/engine-api/client"
     "github.com/docker/engine-api/types"
     "github.com/fatih/color"
+    "golang.org/x/net/context"
 )
 
 var (
@@ -181,7 +182,7 @@ func (driver localPersistDriver) volume(name string) *volume.Volume {
 func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, map[string]string) {
     // set up the ability to make API calls to the daemon
     defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-    // need at least Docker 1.9 for named Volume support
+    // need at least Docker 1.9 (API v1.21) for named Volume support
     cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
     if err != nil {
         return err, map[string]string{}
@@ -189,12 +190,12 @@ func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, m
 
     // grab ALL containers...
     options := types.ContainerListOptions{All: true}
-    containers, err := cli.ContainerList(options)
+    containers, err := cli.ContainerList(context.Background(), options)
 
     // ...and check to see if any of them belong to this driver and recreate their references
     var volumes = map[string]string{}
     for _, container := range containers {
-        info, err := cli.ContainerInspect(container.ID)
+        info, err := cli.ContainerInspect(context.Background(), container.ID)
         if err != nil {
             // something really weird happened here... PANIC
             panic(err)

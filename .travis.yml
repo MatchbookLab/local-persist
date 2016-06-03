@@ -12,6 +12,7 @@ install:
   - go get -v -d
 
 before_script:
+  - docker version
   - make binary-linux-amd64
   - chmod +x bin/linux/amd64/local-persist
   - sudo ./bin/linux/amd64/local-persist &
