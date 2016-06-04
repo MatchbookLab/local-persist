@@ -21,7 +21,7 @@ binary:
 	go build -o bin/$(BIN_NAME) -v
 
 # build all the binaries
-binaries: clean-bin binary-linux-amd64
+binaries: clean-bin binary-linux-amd64 # binary-linux-386 binary-linux-arm binary-freebsd-amd64 binary-freebsd-386
 
 clean-bin:
 	rm -Rf bin
@@ -44,7 +44,7 @@ binary-linux-amd64:
 # binary-linux-arm:
 # 	go build -o bin/$(GOOS)/$(GOARCH)/$(BIN_NAME) -v
 
-# unwilling to support other architectures for now
+# cowardly unwilling to support other architectures for now
 # binary-freebsd-amd64: export GOOS=freebsd
 # binary-freebsd-amd64: export GOARCH=amd64
 # binary-freebsd-amd64:

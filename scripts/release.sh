@@ -48,6 +48,7 @@ if [[ $PRERELEASE == "" ]]; then
 fi
 
 sed -i '' "s|VERSION=\".*\"|VERSION=\"${RELEASE_TAG}\"|" scripts/install.sh
+sed -i '' "s|ENV VERSION .*|ENV VERSION ${RELEASE_TAG}|" Dockerfile
 
 git commit -am "Tagged ${RELEASE_TAG}"
 git push
