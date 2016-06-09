@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM debian
 
 ENV VERSION v1.2.0
 ENV ARCH amd64
