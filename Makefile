@@ -13,7 +13,7 @@ run:
 docker-run:
 	./scripts/docker-run.sh
 
-release: binaries
+release:
 	./scripts/release.sh
 
 # build for current architecture

@@ -14,6 +14,11 @@ nocolor='\033[0m'         # No Color
 USER=cwspear
 REPO=local-persist
 
+# check to make sure github-release is installed!
+github-release --version > /dev/null || exit
+
+# build binaries in a golang build image
+docker run -it -v `pwd`:/go/src/app golang:onbuild /bin/bash -c "go get -v -d; make binaries"
 
 if [[ $RELEASE_NAME == "" ]]; then
     echo -e ${cyan}Enter release name:${nocolor}
