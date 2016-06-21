@@ -9,9 +9,9 @@ import (
 
 func main() {
     var name string
-    var prefix string
-    var statedir string
-    
+    var baseDir string
+    var stateDir string
+
 	app := cli.NewApp()
     app.Name = "docker-local-persist"
     app.Version = "1.2.2"
@@ -24,21 +24,21 @@ func main() {
             Destination: &name,
         },
         cli.StringFlag{
-            Name: "prefix",
+            Name: "baseDir",
             Value: "",
-            Usage: "mountpoints (hidden) prefix",
-            Destination: &prefix,
+            Usage: "Mounted volume base directory",
+            Destination: &baseDir,
         },
         cli.StringFlag{
-            Name: "statedir",
+            Name: "stateDir",
             Value: "/var/lib/docker/plugin-data/",
             Usage: "state directory",
-            Destination: &statedir,
+            Destination: &stateDir,
         },
     }
 
     app.Action = func(c *cli.Context) error {
-        driver := newLocalPersistDriver(name, prefix, statedir)
+        driver := newLocalPersistDriver(name, baseDir, stateDir)
         handler := volume.NewHandler(driver)
         fmt.Println(handler.ServeUnix("root", driver.name))
         return nil

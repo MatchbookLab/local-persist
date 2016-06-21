@@ -31,7 +31,7 @@ type localPersistDriver struct {
     mutex      *sync.Mutex
     debug      bool
     name       string
-    prefix     string
+    baseDir    string
     stateDir   string
 }
 
@@ -39,7 +39,7 @@ type saveData struct {
     State map[string]string `json:"state"`
 }
 
-func newLocalPersistDriver(name string, prefix string, stateDir string) localPersistDriver {
+func newLocalPersistDriver(name string, baseDir string, stateDir string) localPersistDriver {
     fmt.Printf(white("%-18s", "Starting... "))
 
     driver := localPersistDriver{
@@ -47,7 +47,7 @@ func newLocalPersistDriver(name string, prefix string, stateDir string) localPer
 		mutex    : &sync.Mutex{},
         debug    : true,
         name     : name,
-        prefix   : prefix,
+        baseDir  : baseDir,
         stateDir : stateDir,
     }
 
@@ -98,7 +98,7 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
         fmt.Printf("No %s option provided\n", blue("mountpoint"))
         return volume.Response{ Err: fmt.Sprintf("The `mountpoint` option is required") }
     }
-    realMountpoint := path.Join(driver.prefix, mountpoint)
+    realMountpoint := path.Join(driver.baseDir, mountpoint)
 
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
@@ -156,7 +156,7 @@ func (driver localPersistDriver) Path(req volume.Request) volume.Response {
 
     fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
 
-    return volume.Response{ Mountpoint: path.Join(driver.prefix,driver.volumes[req.Name]) }
+    return volume.Response{ Mountpoint: path.Join(driver.baseDir, driver.volumes[req.Name]) }
 }
 
 func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
