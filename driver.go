@@ -39,13 +39,14 @@ type saveData struct {
     State map[string]string `json:"state"`
 }
 
-func newLocalPersistDriver(name string, baseDir string, stateDir string) localPersistDriver {
-    fmt.Printf(white("%-18s", "Starting... "))
-
+func newLocalPersistDriver(name string, baseDir string, stateDir string, debug bool) localPersistDriver {
+    if(debug) {
+        fmt.Printf(white("%-18s", "Starting... "))
+    }
     driver := localPersistDriver{
         volumes  : map[string]string{},
-		mutex    : &sync.Mutex{},
-        debug    : true,
+        mutex    : &sync.Mutex{},
+        debug    : debug,
         name     : name,
         baseDir  : baseDir,
         stateDir : stateDir,
@@ -54,44 +55,55 @@ func newLocalPersistDriver(name string, baseDir string, stateDir string) localPe
     os.Mkdir(stateDir, 0700)
 
     _, driver.volumes = driver.findExistingVolumesFromStateFile()
-    fmt.Printf("Found %s volumes on startup\n", yellow(strconv.Itoa(len(driver.volumes))))
+    if(driver.debug) {
+        fmt.Printf("Found %s volumes on startup\n", yellow(strconv.Itoa(len(driver.volumes))))
+    }
 
     return driver
 }
 
 func (driver localPersistDriver) Get(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "Get Called... "))
-
+    if(driver.debug) {
+        fmt.Print(white("%-18s", "Get Called... "))
+    }
     if driver.exists(req.Name) {
-        fmt.Printf("Found %s\n", cyan(req.Name))
+        if(driver.debug) {
+            fmt.Printf("Found %s\n", cyan(req.Name))
+        }
         return volume.Response{
             Volume: driver.volume(req.Name),
         }
     }
 
-    fmt.Printf("Couldn't find %s\n", cyan(req.Name))
+    if(driver.debug) {
+       fmt.Printf("Couldn't find %s\n", cyan(req.Name))
+    }
     return volume.Response{
         Err: fmt.Sprintf("No volume found with the name %s", cyan(req.Name)),
     }
 }
 
 func (driver localPersistDriver) List(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "List Called... "))
-
+    if(driver.debug) {
+        fmt.Print(white("%-18s", "List Called... "))
+    }
     var volumes []*volume.Volume
     for name, _ := range driver.volumes {
         volumes = append(volumes, driver.volume(name))
     }
 
-    fmt.Printf("Found %s volumes\n", yellow(strconv.Itoa(len(volumes))))
-
+    if(driver.debug) {
+        fmt.Printf("Found %s volumes\n", yellow(strconv.Itoa(len(volumes))))
+    }
     return volume.Response{
         Volumes: volumes,
     }
 }
 
 func (driver localPersistDriver) Create(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "Create Called... "))
+    if(driver.debug) {
+        fmt.Print(white("%-18s", "Create Called... "))
+    }
 
     mountpoint := req.Options["mountpoint"]
     if mountpoint == "" {
@@ -108,8 +120,9 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
     }
 
     err := os.MkdirAll(realMountpoint, 0755)
-    fmt.Printf("Ensuring directory %s exists on host...\n", magenta(realMountpoint))
-
+    if(driver.debug) {
+        fmt.Printf("Ensuring directory %s exists on host...\n", magenta(realMountpoint))
+    }
     if err != nil {
         fmt.Printf("%17s Could not create directory %s\n", " ", magenta(realMountpoint))
         return volume.Response{ Err: err.Error() }
@@ -121,13 +134,16 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
         fmt.Println(e.Error())
     }
 
-    fmt.Printf("%17s Created volume %s with mountpoint %s\n", " ", cyan(req.Name), magenta(mountpoint))
-
+    if(driver.debug) {
+        fmt.Printf("%17s Created volume %s with mountpoint %s\n", " ", cyan(req.Name), magenta(realMountpoint))
+    }
     return volume.Response{}
 }
 
 func (driver localPersistDriver) Remove(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "Remove Called... "))
+    if(driver.debug) {
+        fmt.Print(white("%-18s", "Remove Called... "))
+    }
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
 
@@ -138,31 +154,37 @@ func (driver localPersistDriver) Remove(req volume.Request) volume.Response {
         fmt.Println(err.Error())
     }
 
-    fmt.Printf("Removed %s\n", cyan(req.Name))
+    if(driver.debug) {
+        fmt.Printf("Removed %s\n", cyan(req.Name))
+    }
 
     return volume.Response{}
 }
 
 func (driver localPersistDriver) Mount(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "Mount Called... "))
+    if(driver.debug) {
+        fmt.Print(white("%-18s", "Mount Called... "))
 
-    fmt.Printf("Mounted %s\n", cyan(req.Name))
-
+        fmt.Printf("Mounted %s\n", cyan(req.Name))
+    }
     return driver.Path(req)
 }
 
 func (driver localPersistDriver) Path(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "Path Called... "))
+    if(driver.debug) {
+        fmt.Print(white("%-18s", "Path Called... "))
 
-    fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
-
+        fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
+    }
     return volume.Response{ Mountpoint: path.Join(driver.baseDir, driver.volumes[req.Name]) }
 }
 
 func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
-    fmt.Print(white("%-18s", "Unmount Called... "))
+    if(driver.debug) {        
+        fmt.Print(white("%-18s", "Unmount Called... "))
 
-    fmt.Printf("Unmounted %s\n", cyan(req.Name))
+        fmt.Printf("Unmounted %s\n", cyan(req.Name))
+    }
 
     return driver.Path(req)
 }
@@ -212,7 +234,9 @@ func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, m
     }
 
     if err != nil || len(volumes) == 0 {
-        fmt.Print("Attempting to load from file state...   ")
+        if(driver.debug) {
+            fmt.Print("Attempting to load from file state...   ")
+        }
 
         return driver.findExistingVolumesFromStateFile()
     }

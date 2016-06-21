@@ -11,6 +11,7 @@ func main() {
     var name string
     var baseDir string
     var stateDir string
+    var verbose bool
 
 	app := cli.NewApp()
     app.Name = "docker-local-persist"
@@ -35,10 +36,14 @@ func main() {
             Usage: "state directory",
             Destination: &stateDir,
         },
+        cli.BoolFlag{
+            Name: "verbose",
+            Destination: &verbose,
+        },
     }
 
     app.Action = func(c *cli.Context) error {
-        driver := newLocalPersistDriver(name, baseDir, stateDir)
+        driver := newLocalPersistDriver(name, baseDir, stateDir, verbose)
         handler := volume.NewHandler(driver)
         fmt.Println(handler.ServeUnix("root", driver.name))
         return nil

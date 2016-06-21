@@ -13,7 +13,7 @@ var (
 )
 
 func TestCreate(t *testing.T) {
-    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/")
+    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/", true)
 
     defaultCreateHelper(driver, t)
 
@@ -41,7 +41,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/")
+    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/", true)
 
     defaultCreateHelper(driver, t)
 
@@ -54,7 +54,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/")
+    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/", true)
 
     name := defaultTestName + "2"
     mountpoint := defaultTestMountpoint + "2"
@@ -76,7 +76,7 @@ func TestList(t *testing.T) {
 }
 
 func TestMountUnmountPath(t *testing.T) {
-    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/")
+    driver := newLocalPersistDriver("local-persist", "", "/var/lib/docker/plugin-data/", true)
 
     defaultCreateHelper(driver, t)
 
