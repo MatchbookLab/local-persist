@@ -26,30 +26,29 @@ var (
     white = color.New(color.FgWhite).SprintfFunc()
 )
 
-const (
-    stateDir = "/var/lib/docker/plugin-data/"
-    stateFile = "local-persist.json"
-)
-
 type localPersistDriver struct {
     volumes    map[string]string
     mutex      *sync.Mutex
     debug      bool
     name       string
+    prefix     string
+    stateDir   string
 }
 
 type saveData struct {
     State map[string]string `json:"state"`
 }
 
-func newLocalPersistDriver() localPersistDriver {
+func newLocalPersistDriver(name string, prefix string, stateDir string) localPersistDriver {
     fmt.Printf(white("%-18s", "Starting... "))
 
     driver := localPersistDriver{
-        volumes : map[string]string{},
-		mutex   : &sync.Mutex{},
-        debug   : true,
-        name    : "local-persist",
+        volumes  : map[string]string{},
+		mutex    : &sync.Mutex{},
+        debug    : true,
+        name     : name,
+        prefix   : prefix,
+        stateDir : stateDir,
     }
 
     os.Mkdir(stateDir, 0700)
@@ -99,6 +98,7 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
         fmt.Printf("No %s option provided\n", blue("mountpoint"))
         return volume.Response{ Err: fmt.Sprintf("The `mountpoint` option is required") }
     }
+    realMountpoint := path.Join(driver.prefix, mountpoint)
 
     driver.mutex.Lock()
     defer driver.mutex.Unlock()
@@ -107,11 +107,11 @@ func (driver localPersistDriver) Create(req volume.Request) volume.Response {
         return volume.Response{ Err: fmt.Sprintf("The volume %s already exists", req.Name) }
     }
 
-    err := os.MkdirAll(mountpoint, 0755)
-    fmt.Printf("Ensuring directory %s exists on host...\n", magenta(mountpoint))
+    err := os.MkdirAll(realMountpoint, 0755)
+    fmt.Printf("Ensuring directory %s exists on host...\n", magenta(realMountpoint))
 
     if err != nil {
-        fmt.Printf("%17s Could not create directory %s\n", " ", magenta(mountpoint))
+        fmt.Printf("%17s Could not create directory %s\n", " ", magenta(realMountpoint))
         return volume.Response{ Err: err.Error() }
     }
 
@@ -156,7 +156,7 @@ func (driver localPersistDriver) Path(req volume.Request) volume.Response {
 
     fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
 
-    return volume.Response{ Mountpoint:  driver.volumes[req.Name] }
+    return volume.Response{ Mountpoint: path.Join(driver.prefix,driver.volumes[req.Name]) }
 }
 
 func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
@@ -221,7 +221,7 @@ func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, m
 }
 
 func (driver localPersistDriver) findExistingVolumesFromStateFile() (error, map[string]string) {
-    path := path.Join(stateDir, stateFile)
+    path := path.Join(driver.stateDir, driver.name + ".json")
     fileData, err := ioutil.ReadFile(path)
     if err != nil {
         return err, map[string]string{}
@@ -246,6 +246,6 @@ func (driver localPersistDriver) saveState(volumes map[string]string) error {
         return err
     }
 
-    path := path.Join(stateDir, stateFile)
+    path := path.Join(driver.stateDir, driver.name + ".json")
     return ioutil.WriteFile(path, fileData, 0600)
 }
