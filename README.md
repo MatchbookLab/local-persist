@@ -69,6 +69,7 @@ I maintain an [image on Docker Hub](https://hub.docker.com/r/cwspear/docker-loca
 ```shell
 docker run -d \
     -v /run/docker/plugins/:/run/docker/plugins/ \
+    -v /path/to/store/json/for/restart/:/var/lib/docker/plugin-data/ \
     -v /path/to/where/you/want/data/volume/:/path/to/where/you/want/data/volume/ \
         cwspear/docker-local-persist-volume-plugin
 ```
@@ -76,6 +77,10 @@ docker run -d \
 The `-v /run/docker/plugins/:/run/docker/plugins/` part will make sure the `sock` file gets created at the right place. You also need to add one or more volumes to places you want to mount your volumes later at.
 
 For example, if I am going to persist my MySQL data for a container I'm going to build later at `/data/mysql/`, I would add a `-v /data/mysql/:/data/mysql/` to the command above (or even `-v /data/:/data/`). You can add more than one location in this manner.
+
+Lastly, the `-v /path/to/store/json/for/restart/:/var/lib/docker/plugin-data/` part is so that the plugin can create a `json` file to know what volumes existed in case of a system restart, etc. 
+
+When the container is destroyed, etc, it will look at a file it created in `/var/lib/docker/plugin-data/` to recreate any volumes that had previously existed, so you want that JSON file to persist on the host. 
 
 ## Usage: Creating Volumes
 
