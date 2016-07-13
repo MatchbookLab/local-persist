@@ -167,6 +167,14 @@ func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
     return driver.Path(req)
 }
 
+func (driver localPersistDriver) Capabilities(req volume.Request) volume.Response {
+    fmt.Print(white("%-18s", "Capabilities Called... "))
+
+    return volume.Response{
+        Capabilities: volume.Capability{ Scope: "local" },
+    }
+}
+
 
 func (driver localPersistDriver) exists(name string) bool {
     return driver.volumes[name] != ""
