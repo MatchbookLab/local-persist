@@ -71,7 +71,7 @@ echo RELEASE_TAG=$RELEASE_TAG
 echo PRERELEASE=$PRERELEASE
 echo ''
 
-if [[ $PRERELEASE ]]; then
+if [[ "$PRERELEASE" == true ]]; then
     github-release release \
         --user $USER \
         --repo $REPO \
