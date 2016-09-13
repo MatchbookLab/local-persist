@@ -1,5 +1,7 @@
 # Local Persist Volume Plugin for Docker
 
+[![Join the chat at https://gitter.im/CWSpear/local-persist](https://badges.gitter.im/CWSpear/local-persist.svg)](https://gitter.im/CWSpear/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/CWSpear/local-persist.svg?branch=master)](https://travis-ci.org/CWSpear/local-persist)
 
 Create named local volumes that persist in the location(s) you want!
