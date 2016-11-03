@@ -17,7 +17,7 @@ install:
 
 before_script:
   - docker version
-  - make binary-linux-amd64
+  - make docker-build
   - chmod +x bin/linux/amd64/local-persist
   - sudo ./bin/linux/amd64/local-persist &
 
