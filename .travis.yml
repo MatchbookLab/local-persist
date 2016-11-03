@@ -11,13 +11,14 @@ go:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -o Dpkg::Options::="--force-confold" --force-yes -y docker-engine
+  - curl https://glide.sh/get | sh
 
 install:
-  - go get -v -d
+  - glide install -v
 
 before_script:
   - docker version
-  - make docker-build
+  - make binary-linux-amd64
   - chmod +x bin/linux/amd64/local-persist
   - sudo ./bin/linux/amd64/local-persist &
 
