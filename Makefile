@@ -20,6 +20,7 @@ docker-build: clean-bin
 	./scripts/docker-build.sh
 
 release:
+release: docker-build
 	./scripts/release.sh
 
 # build for current architecture

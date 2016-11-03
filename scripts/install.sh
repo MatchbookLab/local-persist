@@ -91,7 +91,7 @@ function start-systemd {
     sudo systemctl daemon-reload
     sudo systemctl enable docker-volume-local-persist
     sudo systemctl start docker-volume-local-persist
-    sudo systemctl status docker-volume-local-persist
+    sudo systemctl status --full --no-pager docker-volume-local-persist
 
     echo ''
     echo Done! If you see this message, that should mean everything is installed and is running.
