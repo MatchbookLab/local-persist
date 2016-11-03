@@ -143,12 +143,12 @@ func (driver localPersistDriver) Remove(req volume.Request) volume.Response {
     return volume.Response{}
 }
 
-func (driver localPersistDriver) Mount(req volume.Request) volume.Response {
+func (driver localPersistDriver) Mount(req volume.MountRequest) volume.Response {
     fmt.Print(white("%-18s", "Mount Called... "))
 
     fmt.Printf("Mounted %s\n", cyan(req.Name))
 
-    return driver.Path(req)
+    return driver.Path(volume.Request{Name: req.Name})
 }
 
 func (driver localPersistDriver) Path(req volume.Request) volume.Response {
@@ -159,12 +159,12 @@ func (driver localPersistDriver) Path(req volume.Request) volume.Response {
     return volume.Response{ Mountpoint:  driver.volumes[req.Name] }
 }
 
-func (driver localPersistDriver) Unmount(req volume.Request) volume.Response {
+func (driver localPersistDriver) Unmount(req volume.UnmountRequest) volume.Response {
     fmt.Print(white("%-18s", "Unmount Called... "))
 
     fmt.Printf("Unmounted %s\n", cyan(req.Name))
 
-    return driver.Path(req)
+    return driver.Path(volume.Request{Name: req.Name})
 }
 
 func (driver localPersistDriver) Capabilities(req volume.Request) volume.Response {

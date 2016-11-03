@@ -13,6 +13,10 @@ run:
 docker-run:
 	./scripts/docker-run.sh
 
+docker-build:
+docker-build: clean-bin
+	./scripts/docker-build.sh
+
 release:
 	./scripts/release.sh
 
@@ -24,7 +28,7 @@ binary:
 binaries: clean-bin binary-linux-amd64 # binary-linux-386 binary-linux-arm binary-freebsd-amd64 binary-freebsd-386
 
 clean-bin:
-	rm -Rf bin
+	rm -Rf bin/*
 
 # build a specific binary
 binary-linux-amd64: export GOOS=linux
