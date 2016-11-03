@@ -18,7 +18,7 @@ install:
 
 before_script:
   - docker version
-  - GO15VENDOREXPERIMENT=1 make binary-linux-amd64
+  - make binary-linux-amd64
   - chmod +x bin/linux/amd64/local-persist
   - sudo ./bin/linux/amd64/local-persist &
 

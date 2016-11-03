@@ -82,8 +82,8 @@ func TestMountUnmountPath(t *testing.T) {
 
     // mount, mount and path should have same output (they all use Path under the hood)
     pathRes := driver.Path(volume.Request{ Name: defaultTestName })
-    mountRes := driver.Mount(volume.Request{ Name: defaultTestName })
-    unmountRes := driver.Unmount(volume.Request{ Name: defaultTestName })
+    mountRes := driver.Mount(volume.MountRequest{ Name: defaultTestName })
+    unmountRes := driver.Unmount(volume.UnmountRequest{ Name: defaultTestName })
 
     if !(pathRes.Mountpoint == mountRes.Mountpoint &&
          mountRes.Mountpoint == unmountRes.Mountpoint &&
