@@ -47,7 +47,7 @@ func newLocalPersistDriver() localPersistDriver {
 
     driver := localPersistDriver{
         volumes : map[string]string{},
-		mutex   : &sync.Mutex{},
+        mutex   : &sync.Mutex{},
         debug   : true,
         name    : "local-persist",
     }

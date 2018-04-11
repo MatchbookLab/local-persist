@@ -1,14 +1,29 @@
-FROM debian
+# builder image
+FROM golang:1.5 as builder
 
-ENV VERSION v1.3.0
-ENV ARCH amd64
+RUN curl https://glide.sh/get | sh
 
-ADD https://github.com/CWSpear/local-persist/releases/download/${VERSION}/local-persist-linux-${ARCH} /usr/bin/docker-volume-local-persist
-RUN chmod +x /usr/bin/docker-volume-local-persist
+WORKDIR $GOPATH/src/local-persist
+ENV GO15VENDOREXPERIMENT 1
 
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.1.1/dumb-init_1.1.1_amd64 /usr/bin/dumb-init
-RUN chmod +x /usr/bin/dumb-init
+COPY glide.yaml glide.lock ./
+RUN glide install -v
+
+COPY ./ ./
+
+RUN go build -o /go/bin/docker-volume-local-persist
+
+# production image
+FROM alpine
 
 RUN mkdir -p /var/lib/docker/plugin-data/
+COPY --from=builder /go/bin/docker-volume-local-persist .
 
-CMD ["dumb-init", "/usr/bin/docker-volume-local-persist"]
+CMD ["/docker-volume-local-persist"]
+#
+#
+#docker run -d \
+#    -v /run/docker/plugins/:/run/docker/plugins/ \
+#    -v `pwd`/plugin-data/:/var/lib/docker/plugin-data/ \
+#    -v `pwd`:/data/ \
+#        cwspear/docker-volume-local-persist-plugin

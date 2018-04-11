@@ -4,3 +4,4 @@ bin/
 *.iml
 coverage.out
 vendor/
+_idea_vendor/
