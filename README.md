@@ -62,7 +62,10 @@ If you're uncomfortable running a script you downloaded off the internet with `s
 10. run `sudo systemctl enable docker-volume-local-persist` to enable the service (it will start after Docker does)
 11. run `sudo systemctl start docker-volume-local-persist` to start it now. Safe to run if it's already started
 
-### Running from Within a Container
+<a id="running-from-within-a-container"></a>
+### Running from Within a Container (aka Running on Mac or Windows)
+
+macOS and Windows do not support native Docker plugins, so the solution is to run this plugin from another container (you can also do this on Linux if you don't want to install the plugin manually).
 
 I maintain an [image on Docker Hub](https://hub.docker.com/r/cwspear/docker-local-persist-volume-plugin/) to run this plugin from a container:
 
