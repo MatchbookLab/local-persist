@@ -12,7 +12,7 @@
   ],
   "env": [
     {
-      "description": "",
+      "description": "Debug flag (NYI)",
       "name": "DEBUG",
       "settable": [
         "value"
