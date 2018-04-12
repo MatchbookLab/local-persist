@@ -94,7 +94,7 @@ func (driver localPersistDriver) List(req volume.Request) volume.Response {
 func (driver localPersistDriver) Create(req volume.Request) volume.Response {
     fmt.Print(white("%-18s", "Create Called... "))
 
-    mountpoint := "/mnt/volumes" + req.Options["mountpoint"]
+    mountpoint := req.Options["mountpoint"]
     if mountpoint == "" {
         fmt.Printf("No %s option provided\n", blue("mountpoint"))
         return volume.Response{ Err: fmt.Sprintf("The `mountpoint` option is required") }

@@ -27,9 +27,14 @@
     ]
   },
   "linux": {
-    "capabilities": null,
-    "allowAllDevices": false,
-    "devices": null
+    "capabilities": [
+      "CAP_SYS_ADMIN"
+    ],
+    "devices": [
+      {
+        "path": "/dev/fuse"
+      }
+    ]
   },
   "mounts": [
     {
@@ -57,5 +62,6 @@
       ],
       "type": "bind"
     }
-  ]
+  ],
+  "propagatedMount": "/data/"
 }
