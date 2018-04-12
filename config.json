@@ -27,14 +27,9 @@
     ]
   },
   "linux": {
-    "capabilities": [
-      "CAP_SYS_ADMIN"
-    ],
-    "devices": [
-      {
-        "path": "/dev/fuse"
-      }
-    ]
+    "capabilities": null,
+    "allowAllDevices": false,
+    "devices": null
   },
   "mounts": [
     {
