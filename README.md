@@ -28,6 +28,8 @@ It doesn't really say *why* one way is recommended over the other, but I provide
 
 ### Running Outside a Container
 
+**Note:** You currently cannot run this plugin natively on macOS or Windows. The current workaround is to [run the plugin in a container](#running-from-within-a-container).
+
 #### Quick Way
 
 I provide an `install` script that will download the proper binary, set up an Systemd service to start when Docker does and enable it.
