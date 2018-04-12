@@ -10,5 +10,5 @@ func main() {
     driver := newLocalPersistDriver()
 
     handler := volume.NewHandler(driver)
-    fmt.Println(handler.ServeUnix("root", "/run/docker/plugins/" + driver.name))
+    fmt.Println(handler.ServeUnix("root", "/run/docker/plugins/" + driver.name + ".sock"))
 }

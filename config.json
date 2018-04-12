@@ -1,5 +1,5 @@
 {
-  "description": "Create named local volumes that persist in the location(s) you want",
+  "description": "Named volumes that persist where you specify",
   "documentation": "https://github.com/CWSpear/local-persist#usage-creating-volumes",
   "args": {
     "description": "",
@@ -8,7 +8,7 @@
     "value": null
   },
   "entrypoint": [
-    "/usr/bin/docker-volume-local-persist"
+    "/docker-volume-local-persist"
   ],
   "env": [
     {
@@ -33,22 +33,29 @@
   },
   "mounts": [
     {
+      "name": "state",
       "destination": "/var/lib/docker/plugin-data/",
+      "source": "/var/lib/docker/plugins/",
       "options": [
         "rbind"
       ],
-      "name": "local-persist.json",
-      "source": "/var/lib/docker/plugins/",
       "settable": [
         "source"
       ],
       "type": "bind"
+    },
+    {
+      "name": "volumes",
+      "destination": "/data/",
+      "source": "/data/",
+      "options": [
+        "rbind"
+      ],
+      "settable": [
+        "destination",
+        "source"
+      ],
+      "type": "bind"
     }
-  ],
-  "network": {
-    "type": ""
-  },
-  "propagatedMount": "/data",
-  "user": {},
-  "workdir": ""
+  ]
 }
