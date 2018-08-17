@@ -4,14 +4,14 @@ services:
   one:
     image: alpine
     working_dir: /one/
-    command: sleep 600
+    command: sleep 6000
     volumes:
       - data:/one/
 
   two:
     image: alpine
     working_dir: /two/
-    command: sleep 600
+    command: sleep 6000
     volumes:
       - data:/two/
 
@@ -19,4 +19,4 @@ volumes:
   data:
     driver: local-persist
     driver_opts:
-      mountpoint: /data/local-persist/data
+      mountpoint: /docker-data/images

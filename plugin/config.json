@@ -34,8 +34,9 @@
   "mounts": [
     {
       "name": "state",
-      "destination": "/var/lib/docker/plugin-data/",
+      "description": "A place to store the plugin state so it can restore in between restarts",
       "source": "/var/lib/docker/plugins/",
+      "destination": "/var/lib/docker/plugin-data/",
       "options": [
         "rbind"
       ],
@@ -46,8 +47,9 @@
     },
     {
       "name": "volumes",
-      "destination": "/",
-      "source": "/",
+      "description": "A mount to share with the plugin: the source must match the path you want to use on the host (and be the same for source and destination (can't get it to work at all...))",
+      "destination": "/docker-data/",
+      "source": "/docker-data/",
       "options": [
         "rbind"
       ],
@@ -58,5 +60,5 @@
       "type": "bind"
     }
   ],
-  "propagatedMount": "/"
+  "propagatedMount": "/mnt/volumes/"
 }
