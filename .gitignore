@@ -5,4 +5,4 @@ bin/
 coverage.out
 vendor/
 _idea_vendor/
-plugin
+plugin/rootfs

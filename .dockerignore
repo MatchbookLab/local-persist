@@ -2,7 +2,9 @@
 bin
 init
 scripts
+plugin
 local-persist.iml
 README.md
 coverage.out
 vendor
+_idea_vendor
