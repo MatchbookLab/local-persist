@@ -1,0 +1,25 @@
+image: ${IMAGE_PREFIX}:${TAG}
+manifests:
+  -
+    image: ${IMAGE_PREFIX}:${TAG}-amd64
+    platform:
+      architecture: amd64
+      os: linux
+  -
+    image: ${IMAGE_PREFIX}:${TAG}-arm32v6
+    platform:
+      architecture: arm
+      variant: v6
+      os: linux
+  -
+    image: ${IMAGE_PREFIX}:${TAG}-arm32v7
+    platform:
+      architecture: arm
+      variant: v7
+      os: linux
+  -
+    image: ${IMAGE_PREFIX}:${TAG}-aarch64
+    platform:
+      architecture: arm64
+      variant: v8
+      os: linux

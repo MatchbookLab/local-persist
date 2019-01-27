@@ -49,8 +49,8 @@ if [[ $PRERELEASE == "" ]]; then
     [[ $FIRST == 'Y' || $FIRST == 'y' ]] && PRERELEASE=true
 fi
 
-sed -i '' "s|VERSION=\".*\"|VERSION=\"${RELEASE_TAG}\"|" scripts/install.sh
-sed -i '' "s|ENV VERSION .*|ENV VERSION ${RELEASE_TAG}|" Dockerfile
+sed -i "s|VERSION=\".*\"|VERSION=\"${RELEASE_TAG}\"|" scripts/install.sh
+sed -i "s|ENV VERSION .*|ENV VERSION ${RELEASE_TAG}|" Dockerfile
 
 git commit -am "Tagged ${RELEASE_TAG}"
 git push
