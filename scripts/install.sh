@@ -30,12 +30,16 @@ function setenv {
                 # ARCH="386"
                 SUPPORTED=false
             ;;
-            "armv7l")
+            armv6*)
+                ARCH="armv6"
+                SUPPORTED=true
+            ;;
+            armv7*)
                 ARCH="armv7"
                 SUPPORTED=true
             ;;
-            arm*)
-                ARCH="arm"
+            "arm64"|"aarch64")
+                ARCH="arm64"
                 SUPPORTED=true
             ;;
         esac
