@@ -1,6 +1,6 @@
 # Local Persist Volume Plugin for Docker
 
-[![Build Status](https://travis-ci.org/CWSpear/local-persist.svg?branch=master)](https://travis-ci.org/CWSpear/local-persist) [![Join the chat at https://gitter.im/CWSpear/local-persist](https://badges.gitter.im/CWSpear/local-persist.svg)](https://gitter.im/CWSpear/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/MatchbookLab/local-persist.svg?branch=master)](https://travis-ci.org/MatchbookLab/local-persist) [![Join the chat at https://gitter.im/MatchbookLab/local-persist](https://badges.gitter.im/MatchbookLab/local-persist.svg)](https://gitter.im/MatchbookLab/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Create named local volumes that persist in the location(s) you want!
 
@@ -35,7 +35,7 @@ It doesn't really say *why* one way is recommended over the other, but I provide
 I provide an `install` script that will download the proper binary, set up an Systemd service to start when Docker does and enable it.
 
 ```shell
-curl -fsSL https://raw.githubusercontent.com/CWSpear/local-persist/master/scripts/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/MatchbookLab/local-persist/master/scripts/install.sh | sudo bash
 ```
 
 This needs be to run on the Docker *host*. i.e. running that on a Mac won't work (and it will print a message saying as much and exit).
@@ -43,7 +43,7 @@ This needs be to run on the Docker *host*. i.e. running that on a Mac won't work
 This has been tested on Ubuntu 15.10, and is known *not* to work on CoreOS (yet). If you need to use Upstart instead of Systemd, you can pass the `--upstart` flag to the install script, but it isn't as tested, so it may not work:
 
 ```shell
-curl -fsSL https://raw.githubusercontent.com/CWSpear/local-persist/master/scripts/install.sh | sudo bash -s -- --upstart
+curl -fsSL https://raw.githubusercontent.com/MatchbookLab/local-persist/master/scripts/install.sh | sudo bash -s -- --upstart
 ```
 
 Follow the same process to update to the latest version.
@@ -52,7 +52,7 @@ Follow the same process to update to the latest version.
 
 If you're uncomfortable running a script you downloaded off the internet with `sudo`, you can extract any of the steps out of the [`install.sh`](scripts/install.sh) script and run them manually. However you want to do it, the main steps are:
 
-1. Download the appropriate binary from the [Releases page](https://github.com/CWSpear/local-persist/releases) for your OS and architecture.
+1. Download the appropriate binary from the [Releases page](https://github.com/MatchbookLab/local-persist/releases) for your OS and architecture.
 2. Rename the downloaded file `docker-volume-local-persist`
 3. Place it in `/usr/bin` (you can put it somewhere else, but be sure your Systemd (or similar) config reflects the change).
 4. Make sure the file is executable (`chmod +x /usr/bin/docker-volume-local-persist`)
