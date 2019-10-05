@@ -1,12 +1,12 @@
 # Local Persist Volume Plugin for Docker
 
-[![Build Status](https://travis-ci.org/CWSpear/local-persist.svg?branch=master)](https://travis-ci.org/CWSpear/local-persist)
+[![Build Status](https://travis-ci.org/CWSpear/local-persist.svg?branch=master)](https://travis-ci.org/CWSpear/local-persist) [![Join the chat at https://gitter.im/CWSpear/local-persist](https://badges.gitter.im/CWSpear/local-persist.svg)](https://gitter.im/CWSpear/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Join the chat at https://gitter.im/MatchbookLab/local-persist](https://badges.gitter.im/MatchbookLab/local-persist.svg)](https://gitter.im/MatchbookLab/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Create named local volumes that persist in the location(s) you want!
 
 ## Rationale
 
-In Docker 1.9, they added support for [creating standalone named Volumes](https://docs.docker.com/engine/reference/commandline/volume_create/). Now with Docker 1.10 and Docker Compose 1.6's new syntax, you can [create named volumes through Docker Compose](https://docs.docker.com/compose/compose-file/#volume-configuration-reference:91de898b5f5cdb090642a917d3dedf68).
+In Docker 1.9, they added support for [creating standalone named Volumes](https://docs.docker.com/engine/reference/commandline/volume_create/). Now with Docker 1.10 and Docker Compose 1.6's new syntax, you can [create named volumes through Docker Compose](https://docs.docker.com/compose/compose-file/#volume-configuration-reference).
 
 This is great for creating standalone volumes and easily connecting them to different directories in different containers as a way to share data between multiple containers. On a much larger scale, it also allows for the use of Docker Volume Plugins to do cool things like [Flocker](https://github.com/ClusterHQ/flocker) is doing (help run stateful containers across multiple hosts).
 
@@ -27,6 +27,8 @@ According to the [Docker Plugin API Docs](https://docs.docker.com/engine/extend/
 It doesn't really say *why* one way is recommended over the other, but I provide binaries and instructions to run outside of container, as well as an image and instructions to run it inside a container.
 
 ### Running Outside a Container
+
+**Note:** You currently cannot run this plugin natively on macOS or Windows. The current workaround is to [run the plugin in a container](#running-from-within-a-container).
 
 #### Quick Way
 
@@ -62,7 +64,10 @@ If you're uncomfortable running a script you downloaded off the internet with `s
 10. run `sudo systemctl enable docker-volume-local-persist` to enable the service (it will start after Docker does)
 11. run `sudo systemctl start docker-volume-local-persist` to start it now. Safe to run if it's already started
 
-### Running from Within a Container
+<a id="running-from-within-a-container"></a>
+### Running from Within a Container (aka Running on Mac or Windows)
+
+macOS and Windows do not support native Docker plugins, so the solution is to run this plugin from another container (you can also do this on Linux if you don't want to install the plugin manually).
 
 I maintain an [image on Docker Hub](https://hub.docker.com/r/cwspear/docker-local-persist-volume-plugin/) to run this plugin from a container:
 
