@@ -6,14 +6,11 @@ services:
   - docker
 
 go:
-  - 1.5
-
-before_install:
-  - sudo apt-get update
-  - curl https://glide.sh/get | sh
+  - '1.15'
 
 install:
-  - glide install -v
+  - go mod download
+  - go mod vendor
 
 before_script:
   - docker version

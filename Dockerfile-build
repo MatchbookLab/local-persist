@@ -1,13 +1,8 @@
-FROM golang:1.5
+FROM golang:1.15
 
-RUN curl https://glide.sh/get | sh
-
-WORKDIR $GOPATH/src/local-persist
-ENV GO15VENDOREXPERIMENT 1
-
-COPY glide.yaml glide.lock ./
-RUN glide install -v
+WORKDIR /app/
 
 COPY ./ ./
+RUN go mod download && go mod vendor
 
 CMD ["make", "binaries"]
