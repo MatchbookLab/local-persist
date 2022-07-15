@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os/user"
 	"strconv"
 
@@ -13,5 +14,5 @@ func main() {
 	h := volume.NewHandler(d)
 	u, _ := user.Lookup("root")
 	gid, _ := strconv.Atoi(u.Gid)
-	h.ServeUnix(d.name, gid)
+	fmt.Println(h.ServeUnix(d.name, gid))
 }

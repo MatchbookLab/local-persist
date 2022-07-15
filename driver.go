@@ -18,12 +18,6 @@ const (
 	stateFile = "local-persist.json"
 )
 
-var (
-	WarningLogger *log.Logger
-	InfoLogger    *log.Logger
-	ErrorLogger   *log.Logger
-)
-
 type localPersistDriver struct {
 	volumes map[string]string
 	mutex   *sync.Mutex
@@ -36,7 +30,7 @@ type saveData struct {
 }
 
 func newLocalPersistDriver() localPersistDriver {
-	InfoLogger.Println("Starting new Driver")
+	log.Println("Starting new Driver")
 
 	driver := localPersistDriver{
 		volumes: map[string]string{},
@@ -48,13 +42,13 @@ func newLocalPersistDriver() localPersistDriver {
 	os.Mkdir(stateDir, 0700)
 
 	driver.volumes, _ = driver.findExistingVolumesFromStateFile()
-	InfoLogger.Printf("found %d volumes on startup \n", len(driver.volumes))
+	log.Printf("found %d volumes on startup \n", len(driver.volumes))
 
 	return driver
 }
 
 func (driver localPersistDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error) {
-	InfoLogger.Println("New get request")
+	log.Println("New get request")
 
 	if !driver.exists(req.Name) {
 		return &volume.GetResponse{}, fmt.Errorf("no volume found with name %s", req.Name)
@@ -67,7 +61,7 @@ func (driver localPersistDriver) Get(req *volume.GetRequest) (*volume.GetRespons
 }
 
 func (driver localPersistDriver) List() (*volume.ListResponse, error) {
-	InfoLogger.Println("List called")
+	log.Println("List called")
 
 	var volumes []*volume.Volume
 
@@ -81,7 +75,7 @@ func (driver localPersistDriver) List() (*volume.ListResponse, error) {
 }
 
 func (driver localPersistDriver) Create(req *volume.CreateRequest) error {
-	InfoLogger.Println("Create called")
+	log.Println("Create called")
 
 	mountpoint := req.Options["mountpoint"]
 	if mountpoint == "" {
@@ -96,10 +90,10 @@ func (driver localPersistDriver) Create(req *volume.CreateRequest) error {
 	}
 
 	err := os.MkdirAll(mountpoint, 0755)
-	InfoLogger.Printf("Ensuring directory %s exists on host...\n", mountpoint)
+	log.Printf("Ensuring directory %s exists on host...\n", mountpoint)
 
 	if err != nil {
-		InfoLogger.Printf("Could not create directory %s\n", mountpoint)
+		log.Printf("Could not create directory %s\n", mountpoint)
 		return errors.New("error on create. Could not create directory")
 	}
 
@@ -109,13 +103,13 @@ func (driver localPersistDriver) Create(req *volume.CreateRequest) error {
 		fmt.Println(e.Error())
 	}
 
-	InfoLogger.Printf("Created volume %s with mountpoint %s \n", req.Name, mountpoint)
+	log.Printf("Created volume %s with mountpoint %s \n", req.Name, mountpoint)
 
 	return err
 }
 
 func (driver localPersistDriver) Remove(req *volume.RemoveRequest) error {
-	InfoLogger.Println("Remove called")
+	log.Println("Remove called")
 	driver.mutex.Lock()
 	defer driver.mutex.Unlock()
 
@@ -132,13 +126,13 @@ func (driver localPersistDriver) Remove(req *volume.RemoveRequest) error {
 }
 
 func (driver localPersistDriver) Mount(req *volume.MountRequest) (*volume.MountResponse, error) {
-	InfoLogger.Println("Mount called")
+	log.Println("Mount called")
 
 	return &volume.MountResponse{Mountpoint: driver.volumes[req.Name]}, nil
 }
 
 func (driver localPersistDriver) Path(req *volume.PathRequest) (*volume.PathResponse, error) {
-	InfoLogger.Println("Path called")
+	log.Println("Path called")
 
 	fmt.Printf("Returned path %s\n", driver.volumes[req.Name])
 
@@ -146,15 +140,15 @@ func (driver localPersistDriver) Path(req *volume.PathRequest) (*volume.PathResp
 }
 
 func (driver localPersistDriver) Unmount(req *volume.UnmountRequest) error {
-	InfoLogger.Println("Unmount Called... ")
+	log.Println("Unmount Called... ")
 
-	InfoLogger.Printf("Unmounted %s\n", req.Name)
+	log.Printf("Unmounted %s\n", req.Name)
 
 	return nil
 }
 
 func (driver localPersistDriver) Capabilities() *volume.CapabilitiesResponse {
-	InfoLogger.Println("Capabilities Called... ")
+	log.Println("Capabilities Called... ")
 
 	return &volume.CapabilitiesResponse{
 		Capabilities: volume.Capability{Scope: "local"},

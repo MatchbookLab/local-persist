@@ -3,6 +3,7 @@
 1. Removed support for Docker image
 2. Build using GitHub actions
 3. Updated dependencies
+4. V2 plugin
 
 
 
