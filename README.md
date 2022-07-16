@@ -1,3 +1,11 @@
+# Changes
+
+1. V2 managed plugin
+2. Build using GitHub actions
+3. Updated dependencies
+
+
+
 # Local Persist Volume Plugin for Docker
 
 [![Build Status](https://travis-ci.org/MatchbookLab/local-persist.svg?branch=master)](https://travis-ci.org/MatchbookLab/local-persist) [![Join the chat at https://gitter.im/MatchbookLab/local-persist](https://badges.gitter.im/MatchbookLab/local-persist.svg)](https://gitter.im/MatchbookLab/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

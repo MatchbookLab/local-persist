@@ -1,0 +1,63 @@
+{
+  "description": "Named volumes that persist where you specify",
+  "documentation": "https://github.com/CWSpear/local-persist#usage-creating-volumes",
+  "args": {
+    "description": "",
+    "name": "",
+    "settable": null,
+    "value": null
+  },
+  "entrypoint": [
+    "/local-persist"
+  ],
+  "env": [
+    {
+      "description": "Debug flag (NYI)",
+      "name": "DEBUG",
+      "settable": [
+        "value"
+      ],
+      "value": "0"
+    }
+  ],
+  "interface": {
+    "socket": "local-persist.sock",
+    "types": [
+      "docker.volumedriver/1.0"
+    ]
+  },
+  "linux": {
+    "capabilities": null,
+    "allowAllDevices": false,
+    "devices": null
+  },
+  "mounts": [
+    {
+      "description": "A place to store the plugin state so it can restore in between restarts",
+      "destination": "/state",
+      "options": [
+        "rbind"
+      ],
+      "name": "state",
+      "source": "/var/lib/docker/plugins",
+      "settable": [
+        "source"
+      ],
+      "type": "bind"
+    },
+    {
+      "description": "A mount to share your data on. Source must be an existing path on host. Destination is path within the container. Easiest to keep destination and source equal, so we do not have to map paths when creating them through the driver",
+      "destination": "/docker-data",
+      "options": [
+        "rbind"
+      ],
+      "name": "volumes",
+      "source": "/docker-data",
+      "settable": [
+        "source"
+      ],
+      "type": "bind"
+    }
+  ],
+  "propagatedMount": "/docker-data"
+}
