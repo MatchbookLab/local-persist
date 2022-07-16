@@ -1,9 +1,8 @@
 # Changes
 
-1. Removed support for Docker image
+1. V2 managed plugin
 2. Build using GitHub actions
 3. Updated dependencies
-4. V2 plugin
 
 
 

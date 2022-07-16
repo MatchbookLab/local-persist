@@ -1,6 +1,1 @@
-.idea/
-bin/
-
-*.iml
-coverage.out
-vendor/
+rootfs

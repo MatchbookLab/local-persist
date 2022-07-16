@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	stateDir  = "/var/lib/docker/plugin-data/"
+	stateDir  = "/state"
 	stateFile = "local-persist.json"
 )
 
@@ -53,7 +53,7 @@ func (driver localPersistDriver) Get(req *volume.GetRequest) (*volume.GetRespons
 	if !driver.exists(req.Name) {
 		return &volume.GetResponse{}, fmt.Errorf("no volume found with name %s", req.Name)
 	}
-
+	log.Println("Get request for existing volume")
 	return &volume.GetResponse{
 		Volume: driver.volume(req.Name),
 	}, nil
@@ -81,7 +81,7 @@ func (driver localPersistDriver) Create(req *volume.CreateRequest) error {
 	if mountpoint == "" {
 		return fmt.Errorf("the `mountpoint` option is required")
 	}
-
+	log.Println(mountpoint)
 	driver.mutex.Lock()
 	defer driver.mutex.Unlock()
 
@@ -126,13 +126,14 @@ func (driver localPersistDriver) Remove(req *volume.RemoveRequest) error {
 }
 
 func (driver localPersistDriver) Mount(req *volume.MountRequest) (*volume.MountResponse, error) {
-	log.Println("Mount called")
+	log.Printf("Mount called with request name: %s \n", req.Name)
+	log.Printf("Mount for volume %s", driver.volumes[req.Name])
 
 	return &volume.MountResponse{Mountpoint: driver.volumes[req.Name]}, nil
 }
 
 func (driver localPersistDriver) Path(req *volume.PathRequest) (*volume.PathResponse, error) {
-	log.Println("Path called")
+	log.Printf("Path called")
 
 	fmt.Printf("Returned path %s\n", driver.volumes[req.Name])
 
