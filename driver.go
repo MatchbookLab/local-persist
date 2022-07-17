@@ -54,8 +54,8 @@ func newLocalPersistDriver() localPersistDriver {
 
     os.Mkdir(stateDir, 0700)
 
-    _, driver.volumes = driver.findExistingVolumesFromStateFile()
-    fmt.Printf("Found %s volumes on startup\n", yellow(strconv.Itoa(len(driver.volumes))))
+	driver.volumes, _ = driver.findExistingVolumesFromStateFile()
+	fmt.Printf("Found %s volumes on startup\n", yellow(strconv.Itoa(len(driver.volumes))))
 
     return driver
 }
@@ -193,8 +193,8 @@ func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, m
     // need at least Docker 1.9 (API v1.21) for named Volume support
     cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
     if err != nil {
-        return err, map[string]string{}
-    }
+		return map[string]string{}, err
+	}
 
     // grab ALL containers...
     options := types.ContainerListOptions{All: true}
@@ -222,26 +222,26 @@ func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, m
     if err != nil || len(volumes) == 0 {
         fmt.Print("Attempting to load from file state...   ")
 
-        return driver.findExistingVolumesFromStateFile()
-    }
+		return driver.findExistingVolumesFromStateFile()
+	}
 
-    return nil, volumes
+	return volumes, nil
 }
 
-func (driver localPersistDriver) findExistingVolumesFromStateFile() (error, map[string]string) {
-    path := path.Join(stateDir, stateFile)
-    fileData, err := ioutil.ReadFile(path)
-    if err != nil {
-        return err, map[string]string{}
-    }
+func (driver localPersistDriver) findExistingVolumesFromStateFile() (map[string]string, error) {
+	path := path.Join(stateDir, stateFile)
+	fileData, err := ioutil.ReadFile(path)
+	if err != nil {
+		return map[string]string{}, err
+	}
 
     var data saveData
     e := json.Unmarshal(fileData, &data)
     if e != nil {
-        return e, map[string]string{}
-    }
+		return map[string]string{}, e
+	}
 
-    return nil, data.State
+	return data.State, nil
 }
 
 func (driver localPersistDriver) saveState(volumes map[string]string) error {
