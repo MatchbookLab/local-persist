@@ -9,7 +9,7 @@ import (
 
 var (
 	defaultTestName       = "test-volume"
-	defaultTestMountpoint = "./tmp/data/local-persist-test"
+	defaultTestMountpoint = "/tmp/data/local-persist-test"
 )
 
 func TestCreate(t *testing.T) {
@@ -30,13 +30,14 @@ func TestCreate(t *testing.T) {
 
 	defaultCleanupHelper(driver, t)
 
-	req := &volume.CreateRequest{Name: defaultTestName}
+	req := &volume.CreateRequest{Name: "defaultTestName"}
 	// test that options are required
 	err = driver.Create(req)
 
-	if err == nil {
-		t.Error("No error was returned, although we did not pass mountpoint")
+	if err.Error() != "the `mountpoint` option is required" {
+		t.Error(err)
 	}
+	defaultCleanupHelper(driver, t)
 }
 
 func TestGet(t *testing.T) {
@@ -117,6 +118,7 @@ func TestMountUnmountPath(t *testing.T) {
 		pathRes.Mountpoint == defaultTestMountpoint) {
 		t.Error("Mount, Unmount and Path should all return the same Mountpoint")
 	}
+	defaultCleanupHelper(driver, t)
 }
 
 func createHelper(driver *localPersistDriver, t *testing.T, name string, mountpoint string) {

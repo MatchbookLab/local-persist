@@ -4,3 +4,4 @@ bin/
 *.iml
 coverage.out
 vendor/
+tmp

@@ -40,7 +40,7 @@ type saveData struct {
 }
 
 func newLocalPersistDriver() *localPersistDriver {
-	fmt.Print(white("%-18s", "Starting... "))
+	fmt.Print("\n", white("%-18s", "Starting... "))
 
 	driver := localPersistDriver{
 		volumes: map[string]string{},
@@ -58,7 +58,7 @@ func newLocalPersistDriver() *localPersistDriver {
 }
 
 func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error) {
-	fmt.Print(white("%-18s", "Get Called... "))
+	fmt.Print("\n", white("%-18s", "Get Called... "))
 
 	if !driver.exists(req.Name) {
 		fmt.Printf("Couldn't find %s\n", cyan(req.Name))
@@ -71,7 +71,7 @@ func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetRespon
 }
 
 func (driver *localPersistDriver) List() (*volume.ListResponse, error) {
-	fmt.Print(white("%-18s", "List Called... "))
+	fmt.Print("\n", white("%-18s", "List Called... "))
 
 	var volumes []*volume.Volume
 	for name := range driver.volumes {
@@ -84,7 +84,7 @@ func (driver *localPersistDriver) List() (*volume.ListResponse, error) {
 }
 
 func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
-	fmt.Print(white("%-18s", "Create Called... "))
+	fmt.Print("\n", white("%-18s", "Create Called... "))
 
 	mountpoint := req.Options["mountpoint"]
 	if mountpoint == "" {
@@ -118,7 +118,7 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 }
 
 func (driver *localPersistDriver) Remove(req *volume.RemoveRequest) error {
-	fmt.Print(white("%-18s", "Remove Called... "))
+	fmt.Print("\n", white("%-18s", "Remove Called... "))
 	driver.mutex.Lock()
 	defer driver.mutex.Unlock()
 
@@ -136,7 +136,7 @@ func (driver *localPersistDriver) Remove(req *volume.RemoveRequest) error {
 
 func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.MountResponse, error) {
 	// TODO: Improve error handling. What if volume exists, but mountpoint/path has been deleted?
-	fmt.Print(white("%-18s", "Mount Called... "))
+	fmt.Print("\n", white("%-18s", "Mount Called... "))
 
 	_, ok := driver.volumes[req.Name]
 	if !ok {
@@ -151,7 +151,7 @@ func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.Mount
 func (driver *localPersistDriver) Path(req *volume.PathRequest) (*volume.PathResponse, error) {
 	// TODO: Improve error handling, what if path no longer exists, what if volume does not exist?
 
-	fmt.Print(white("%-18s", "Path Called... "))
+	fmt.Print("\n", white("%-18s", "Path Called... "))
 
 	fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
 
@@ -161,7 +161,7 @@ func (driver *localPersistDriver) Path(req *volume.PathRequest) (*volume.PathRes
 func (driver *localPersistDriver) Unmount(req *volume.UnmountRequest) error {
 	// TODO: Improve error handling. What if volume is not found?
 	// And: Is this function even doing anything? What should it be doing?
-	fmt.Print(white("%-18s", "Unmount Called... "))
+	fmt.Print("\n", white("%-18s", "Unmount Called... "))
 
 	fmt.Printf("Unmounted %s\n", cyan(req.Name))
 
@@ -169,7 +169,7 @@ func (driver *localPersistDriver) Unmount(req *volume.UnmountRequest) error {
 }
 
 func (driver *localPersistDriver) Capabilities() *volume.CapabilitiesResponse {
-	fmt.Print(white("%-18s", "Capabilities Called... "))
+	fmt.Print("\n", white("%-18s", "Capabilities Called... "))
 
 	return &volume.CapabilitiesResponse{Capabilities: volume.Capability{Scope: "local"}}
 }
@@ -218,7 +218,7 @@ func (driver *localPersistDriver) volume(name string) *volume.Volume {
 //	}
 //
 //	if err != nil || len(volumes) == 0 {
-//		fmt.Print("Attempting to load from file state...   ")
+//		fmt.Print("\n","Attempting to load from file state...   ")
 //
 //		return driver.findExistingVolumesFromStateFile()
 //	}
