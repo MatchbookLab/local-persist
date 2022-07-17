@@ -228,6 +228,47 @@ func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (error, m
 	return volumes, nil
 }
 
+//func (driver localPersistDriver) findExistingVolumesFromDockerDaemon() (map[string]string, error) {
+//	// set up the ability to make API calls to the daemon
+//	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
+//	// need at least Docker 1.9 (API v1.21) for named Volume support
+//	cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.21", nil, defaultHeaders)
+//	if err != nil {
+//		return map[string]string{}, err
+//	}
+//
+//	// grab ALL containers...
+//	options := types.ContainerListOptions{All: true}
+//	containers, err := cli.ContainerList(context.Background(), options)
+//
+//	// ...and check to see if any of them belong to this driver and recreate their references
+//	var volumes = map[string]string{}
+//	for _, container := range containers {
+//		info, err := cli.ContainerInspect(context.Background(), container.ID)
+//		if err != nil {
+//			// something really weird happened here... PANIC
+//			panic(err)
+//		}
+//
+//		for _, mount := range info.Mounts {
+//			if mount.Driver == driver.name {
+//				// @TODO there could be multiple volumes (mounts) with this { name: source } combo, and while that's okay
+//				// what if they is the same name with a different source? could that happen? if it could,
+//				// it'd be bad, so maybe we want to panic here?
+//				volumes[mount.Name] = mount.Source
+//			}
+//		}
+//	}
+//
+//	if err != nil || len(volumes) == 0 {
+//		fmt.Print("Attempting to load from file state...   ")
+//
+//		return driver.findExistingVolumesFromStateFile()
+//	}
+//
+//	return volumes, nil
+//}
+
 func (driver localPersistDriver) findExistingVolumesFromStateFile() (map[string]string, error) {
 	path := path.Join(stateDir, stateFile)
 	fileData, err := ioutil.ReadFile(path)
