@@ -4,7 +4,6 @@ BIN_NAME=local-persist
 coverage:
 	GO_ENV=test go test -v -coverprofile=coverage.out ./... && sed -i '' 's|'_$(PWD)'|.|g' coverage.out && go tool cover -html=coverage.out
 
-test: export GO15VENDOREXPERIMENT=1
 test: export GO_ENV=test
 test:
 	go test -v .
@@ -24,7 +23,6 @@ release: docker-build
 	./scripts/release.sh
 
 # build for current architecture
-binary: export GO15VENDOREXPERIMENT=1
 binary:
 	go build -o bin/$(BIN_NAME) -v
 
@@ -37,7 +35,6 @@ clean-bin:
 # build a specific binary
 binary-linux-amd64: export GOOS=linux
 binary-linux-amd64: export GOARCH=amd64
-binary-linux-amd64: export GO15VENDOREXPERIMENT=1
 binary-linux-amd64:
 	go build -o bin/$(GOOS)/$(GOARCH)/$(BIN_NAME) -v
 
