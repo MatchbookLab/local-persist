@@ -1,19 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"os/user"
-	"strconv"
+    "fmt"
 
-	"github.com/docker/go-plugins-helpers/volume"
+    "github.com/docker/go-plugins-helpers/volume"
 )
 
 func main() {
-	driver := newLocalPersistDriver()
+    driver := newLocalPersistDriver()
 
-	u, _ := user.Lookup("root")
-	uid, _ := strconv.Atoi(u.Uid)
-
-	handler := volume.NewHandler(driver)
-	fmt.Println(handler.ServeUnix(driver.name, uid))
+    handler := volume.NewHandler(driver)
+    fmt.Println(handler.ServeUnix("root", driver.name))
 }
