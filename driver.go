@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path"
@@ -60,9 +62,12 @@ func newLocalPersistDriver() *localPersistDriver {
 func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error) {
 	fmt.Print("\n", white("%-18s", "Get Called... "))
 
+	driver.mutex.Lock()
+	defer driver.mutex.Unlock()
+
 	if !driver.exists(req.Name) {
 		fmt.Printf("Couldn't find %s\n", cyan(req.Name))
-		return nil, fmt.Errorf("no volume found with the name %s", cyan(req.Name))
+		return &volume.GetResponse{}, fmt.Errorf("no volume found with the name %s", cyan(req.Name))
 	}
 
 	fmt.Printf("Found %s\n", cyan(req.Name))
@@ -72,6 +77,9 @@ func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetRespon
 
 func (driver *localPersistDriver) List() (*volume.ListResponse, error) {
 	fmt.Print("\n", white("%-18s", "List Called... "))
+
+	driver.mutex.Lock()
+	defer driver.mutex.Unlock()
 
 	var volumes []*volume.Volume
 	for name := range driver.volumes {
@@ -85,6 +93,9 @@ func (driver *localPersistDriver) List() (*volume.ListResponse, error) {
 
 func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 	fmt.Print("\n", white("%-18s", "Create Called... "))
+
+	driver.mutex.Lock()
+	defer driver.mutex.Unlock()
 
 	mountpoint := req.Options["mountpoint"]
 	if mountpoint == "" {
@@ -119,6 +130,7 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 
 func (driver *localPersistDriver) Remove(req *volume.RemoveRequest) error {
 	fmt.Print("\n", white("%-18s", "Remove Called... "))
+
 	driver.mutex.Lock()
 	defer driver.mutex.Unlock()
 
@@ -135,33 +147,60 @@ func (driver *localPersistDriver) Remove(req *volume.RemoveRequest) error {
 }
 
 func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.MountResponse, error) {
-	// TODO: Improve error handling. What if volume exists, but mountpoint/path has been deleted?
 	fmt.Print("\n", white("%-18s", "Mount Called... "))
 
-	_, ok := driver.volumes[req.Name]
+	driver.mutex.Lock()
+	defer driver.mutex.Unlock()
+
+	p, ok := driver.volumes[req.Name]
+
 	if !ok {
 		return &volume.MountResponse{}, fmt.Errorf("volume %s not found", req.Name)
+	}
+	// Now check if the path still exists on the host
+	f, err := os.Stat(p)
+
+	// If the path does not exist
+	if errors.Is(err, fs.ErrNotExist) {
+		return &volume.MountResponse{}, fmt.Errorf("Path %s for volume %s not found", p, req.Name)
+	}
+
+	// If the path is a file
+	if f != nil && f.IsDir() {
+		return &volume.MountResponse{}, fmt.Errorf("Path %s for volume %s is a file, not a directory", p, req.Name)
 	}
 
 	fmt.Printf("Mounted %s\n", cyan(req.Name))
 
-	return &volume.MountResponse{Mountpoint: driver.volumes[req.Name]}, nil
+	return &volume.MountResponse{Mountpoint: p}, nil
 }
 
 func (driver *localPersistDriver) Path(req *volume.PathRequest) (*volume.PathResponse, error) {
-	// TODO: Improve error handling, what if path no longer exists, what if volume does not exist?
-
 	fmt.Print("\n", white("%-18s", "Path Called... "))
 
-	fmt.Printf("Returned path %s\n", magenta(driver.volumes[req.Name]))
+	driver.mutex.Lock()
+	defer driver.mutex.Unlock()
+
+	v, ok := driver.volumes[req.Name]
+	if !ok {
+		return &volume.PathResponse{}, fmt.Errorf("volume %s not found", req.Name)
+	}
+
+	fmt.Printf("Returned path %s\n", magenta(v))
 
 	return &volume.PathResponse{Mountpoint: driver.volumes[req.Name]}, nil
 }
 
 func (driver *localPersistDriver) Unmount(req *volume.UnmountRequest) error {
-	// TODO: Improve error handling. What if volume is not found?
-	// And: Is this function even doing anything? What should it be doing?
 	fmt.Print("\n", white("%-18s", "Unmount Called... "))
+
+	driver.mutex.Lock()
+	defer driver.mutex.Unlock()
+
+	_, ok := driver.volumes[req.Name]
+	if !ok {
+		return fmt.Errorf("volume %s not found", req.Name)
+	}
 
 	fmt.Printf("Unmounted %s\n", cyan(req.Name))
 
