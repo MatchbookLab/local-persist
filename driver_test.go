@@ -97,6 +97,7 @@ func TestMount(t *testing.T) {
 	driver := newLocalPersistDriver()
 
 	defaultCreateHelper(driver, t)
+
 	req := &volume.MountRequest{Name: defaultTestName}
 	_, err := driver.Mount(req)
 
@@ -104,6 +105,7 @@ func TestMount(t *testing.T) {
 		t.Error("Error on mount")
 	}
 
+	// Remove a mountpoint, while volume still exists
 	err = os.Remove(defaultTestMountpoint)
 
 	if err != nil {
@@ -111,16 +113,15 @@ func TestMount(t *testing.T) {
 	}
 
 	_, err = driver.Mount(req)
-
 	if err == nil {
 		t.Error("Mountpoint was deleted but test did not error")
 	}
 
+	// Test to mount a existing file (should not be possible)
 	_, err = os.Create(defaultTestMountpoint)
 	if err != nil {
-		t.Error("Could create mountpoint as file")
+		t.Error("Could not create mountpoint as file")
 	}
-
 	_, err = driver.Mount(req)
 	if err == nil {
 		t.Error("Mountpoint is a file but test did not error")
@@ -133,19 +134,21 @@ func TestUnmount(t *testing.T) {
 
 	defaultCreateHelper(driver, t)
 
-	reqFail := &volume.UnmountRequest{Name: defaultTestName + "does_not_exist"}
-	err := driver.Unmount(reqFail)
-
-	if err == nil {
-		t.Error("test should fail as volume does not exist")
-	}
-
+	// Requesting an existing volume
 	req := &volume.UnmountRequest{Name: defaultTestName}
 
-	err = driver.Unmount(req)
+	err := driver.Unmount(req)
 
 	if err != nil {
 		t.Error("Error on unmount")
+	}
+
+	// Requesting a non-existing volume
+	reqFail := &volume.UnmountRequest{Name: defaultTestName + "does_not_exist"}
+	err = driver.Unmount(reqFail)
+
+	if err == nil {
+		t.Error("Test should fail as volume does not exist")
 	}
 
 	defaultCleanupHelper(driver, t)
@@ -155,24 +158,25 @@ func TestPath(t *testing.T) {
 	driver := newLocalPersistDriver()
 
 	defaultCreateHelper(driver, t)
-
-	reqFail := &volume.PathRequest{Name: defaultTestName + "does_not_exist"}
-	_, err := driver.Path(reqFail)
-
-	if err == nil {
-		t.Error("test should fail as volume does not exist")
-	}
-
+	// Requesting an existing volume
 	req := &volume.PathRequest{Name: defaultTestName}
 
 	v, err := driver.Path(req)
 
 	if err != nil {
-		t.Error("error on path")
+		t.Error("Error on path")
 	}
 
 	if v.Mountpoint != defaultTestMountpoint {
-		t.Error("mountpoint should be equal to defaultTestMountpoint")
+		t.Error("Mountpoint should be equal to defaultTestMountpoint")
+	}
+
+	// Requesting a non-existing volume
+	reqFail := &volume.PathRequest{Name: defaultTestName + "does_not_exist"}
+	_, err = driver.Path(reqFail)
+
+	if err == nil {
+		t.Error("Test should fail as volume does not exist")
 	}
 
 	defaultCleanupHelper(driver, t)
