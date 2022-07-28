@@ -93,32 +93,90 @@ func TestList(t *testing.T) {
 	cleanupHelper(driver, t, name, mountpoint)
 }
 
-func TestMountUnmountPath(t *testing.T) {
-	// TODO: Refactor this test. Is it okay to test all three at same time?
+func TestMount(t *testing.T) {
 	driver := newLocalPersistDriver()
 
 	defaultCreateHelper(driver, t)
-	mountReq := &volume.MountRequest{Name: defaultTestName}
-	unmountReq := &volume.UnmountRequest{Name: defaultTestName}
-	pathReq := &volume.PathRequest{Name: defaultTestName}
+	req := &volume.MountRequest{Name: defaultTestName}
+	_, err := driver.Mount(req)
 
-	// mount, mount and path should have same output (they all use Path under the hood)
-
-	mountRes, mountErr := driver.Mount(mountReq)
-	unmountErr := driver.Unmount(unmountReq)
-	pathRes, pathErr := driver.Path(pathReq)
-
-	if !(mountErr == nil &&
-		unmountErr == nil &&
-		pathErr == nil) {
-		t.Error("Error on mount, unmount or path")
+	if err != nil {
+		t.Error("Error on mount")
 	}
 
-	if !(pathRes.Mountpoint == mountRes.Mountpoint &&
-		pathRes.Mountpoint == defaultTestMountpoint) {
-		t.Error("Mount, Unmount and Path should all return the same Mountpoint")
+	err = os.Remove(defaultTestMountpoint)
+
+	if err != nil {
+		t.Error("Could not remove mountpoint")
+	}
+
+	_, err = driver.Mount(req)
+
+	if err == nil {
+		t.Error("Mountpoint was deleted but test did not error")
+	}
+
+	_, err = os.Create(defaultTestMountpoint)
+	if err != nil {
+		t.Error("Could create mountpoint as file")
+	}
+
+	_, err = driver.Mount(req)
+	if err == nil {
+		t.Error("Mountpoint is a file but test did not error")
 	}
 	defaultCleanupHelper(driver, t)
+}
+
+func TestUnmount(t *testing.T) {
+	driver := newLocalPersistDriver()
+
+	defaultCreateHelper(driver, t)
+
+	reqFail := &volume.UnmountRequest{Name: defaultTestName + "does_not_exist"}
+	err := driver.Unmount(reqFail)
+
+	if err == nil {
+		t.Error("test should fail as volume does not exist")
+	}
+
+	req := &volume.UnmountRequest{Name: defaultTestName}
+
+	err = driver.Unmount(req)
+
+	if err != nil {
+		t.Error("Error on unmount")
+	}
+
+	defaultCleanupHelper(driver, t)
+
+}
+func TestPath(t *testing.T) {
+	driver := newLocalPersistDriver()
+
+	defaultCreateHelper(driver, t)
+
+	reqFail := &volume.PathRequest{Name: defaultTestName + "does_not_exist"}
+	_, err := driver.Path(reqFail)
+
+	if err == nil {
+		t.Error("test should fail as volume does not exist")
+	}
+
+	req := &volume.PathRequest{Name: defaultTestName}
+
+	v, err := driver.Path(req)
+
+	if err != nil {
+		t.Error("error on path")
+	}
+
+	if v.Mountpoint != defaultTestMountpoint {
+		t.Error("mountpoint should be equal to defaultTestMountpoint")
+	}
+
+	defaultCleanupHelper(driver, t)
+
 }
 
 func createHelper(driver *localPersistDriver, t *testing.T, name string, mountpoint string) {
@@ -161,7 +219,7 @@ func cleanupHelper(driver *localPersistDriver, t *testing.T, name string, mountp
 	//Volume should be nil, as it is deleted
 	v, err := driver.Get(getReq)
 
-	if v != nil {
+	if v.Volume != nil {
 		t.Error(err)
 	}
 }

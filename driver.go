@@ -103,9 +103,6 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 		return fmt.Errorf("the `mountpoint` option is required")
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
-
 	if driver.exists(req.Name) {
 		return fmt.Errorf("the volume %s already exists", req.Name)
 	}
@@ -156,8 +153,7 @@ func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.Mount
 
 	if !ok {
 		return &volume.MountResponse{}, fmt.Errorf("volume %s not found", req.Name)
-	}
-	// Now check if the path still exists on the host
+	} // Now check if the path still exists on the host
 	f, err := os.Stat(p)
 
 	// If the path does not exist
@@ -166,7 +162,7 @@ func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.Mount
 	}
 
 	// If the path is a file
-	if f != nil && f.IsDir() {
+	if f != nil && !f.IsDir() {
 		return &volume.MountResponse{}, fmt.Errorf("Path %s for volume %s is a file, not a directory", p, req.Name)
 	}
 
