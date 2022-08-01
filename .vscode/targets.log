@@ -1,0 +1,284 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
+# GNU Make 4.3
+# Built for aarch64-unknown-linux-gnu
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Mon Aug  1 15:27:24 2022
+
+# Variables
+
+# environment
+LC_ALL = C
+# environment
+NO_AT_BRIDGE = 1
+# environment
+VSCODE_CWD = /home/badger
+# environment
+TEXTDOMAIN = Linux-PAM
+# default
+MAKE_COMMAND := make
+# environment
+VSCODE_HANDLES_SIGPIPE = true
+# environment
+GOPATH = /home/badger/go
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# makefile (from 'Makefile', line 1)
+PWD = $(shell bash -c 'pwd')
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# automatic
+%F = $(notdir $%)
+# environment
+LANG = C
+# default
+.LOADED := 
+# default
+.INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
+# makefile
+MAKEFLAGS = pqrR
+# makefile
+CURDIR := /home/badger/git/local-persist
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+MFLAGS = -pqrR
+# default
+.SHELLFLAGS := -c
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST := Makefile
+# automatic
+@F = $(notdir $@)
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+*F = $(notdir $*)
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
+# default
+MAKE_HOST := aarch64-unknown-linux-gnu
+# makefile
+SHELL = /bin/sh
+# default
+MAKECMDGOALS := all
+# environment
+SHLVL = 0
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /home/badger/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/remote-cli:/home/badger/.local/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/home/badger/go/bin
+# default
+MAKEFILES := 
+# environment
+LANGUAGE = 
+# environment
+MOTD_SHOWN = pam
+# automatic
+^F = $(notdir $^)
+# environment
+SSH_CLIENT = fe80::fc02:926f:62fd:a693%eth0 56021 22
+# environment
+TZ = Australia/Perth
+# automatic
+?F = $(notdir $?)
+# environment
+LS_COLORS = 
+# automatic
++F = $(notdir $+)
+# 'override' directive
+GNUMAKEFLAGS := 
+# environment
+BROWSER = /home/badger/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/helpers/browser.sh
+# makefile (from 'Makefile', line 2)
+BIN_NAME = local-persist
+# environment
+LOGNAME = badger
+# makefile
+.DEFAULT_GOAL := coverage
+# environment
+USER = badger
+# default
+MAKE_VERSION := 4.3
+# environment
+VSCODE_AGENT_FOLDER = /home/badger/.vscode-server
+# environment
+_ = /home/badger/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/node
+# environment
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-0fadc783-14f6-49bb-9dbc-6bf255d8996c.sock
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/badger
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# default
+SUFFIXES := 
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
+# environment
+SSH_CONNECTION = fe80::fc02:926f:62fd:a693%eth0 56021 fe80::dea6:32ff:fe0f:1793%eth0 22
+# variable set hash-table stats:
+# Load=64/1024=6%, Rehash=0, Collisions=1/101=1%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 22, inode 1279): 21 files, no impossibilities.
+
+# 21 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+# No implicit rules.
+
+# Files
+
+coverage:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 5):
+	GO_ENV=test go test -v -coverprofile=coverage.out ./... && sed -i '' 's|'_$(PWD)'|.|g' coverage.out && go tool cover -html=coverage.out
+
+clean-bin:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 35):
+	rm -Rf bin/*
+
+# makefile (from 'Makefile', line 38)
+binary-linux-amd64: GOOS = linux
+# makefile (from 'Makefile', line 39)
+binary-linux-amd64: GOARCH = amd64
+# makefile (from 'Makefile', line 40)
+binary-linux-amd64: GO15VENDOREXPERIMENT = 1
+binary-linux-amd64:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=3/32=9%, Rehash=0, Collisions=0/4=0%
+#  recipe to execute (from 'Makefile', line 42):
+	go build -o bin/$(GOOS)/$(GOARCH)/$(BIN_NAME) -v
+
+# makefile (from 'Makefile', line 27)
+binary: GO15VENDOREXPERIMENT = 1
+binary:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/2=0%
+#  recipe to execute (from 'Makefile', line 29):
+	go build -o bin/$(BIN_NAME) -v
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-01 15:26:54.734571742
+#  File has been updated.
+#  Successfully updated.
+
+binaries: clean-bin binary-linux-amd64
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+all:
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has not been updated.
+
+run:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 13):
+	sudo -E go run main.go driver.go
+
+# makefile (from 'Makefile', line 8)
+test: GO_ENV = test
+# makefile (from 'Makefile', line 7)
+test: GO15VENDOREXPERIMENT = 1
+test:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=2/32=6%, Rehash=0, Collisions=0/3=0%
+#  recipe to execute (from 'Makefile', line 10):
+	go test -v .
+
+docker-build: clean-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 20):
+	./scripts/docker-build.sh
+
+release: docker-build
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 24):
+	./scripts/release.sh
+
+docker-run:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 16):
+	./scripts/docker-run.sh
+
+# files hash-table stats:
+# Load=14/1024=1%, Rehash=0, Collisions=0/40=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 36 / storage = 369 B / avg = 10 B
+# current buf: size = 8162 B / used = 369 B / count = 36 / avg = 10 B
+
+# strcache performance: lookups = 66 / hit rate = 45%
+# hash-table stats:
+# Load=36/8192=0%, Rehash=0, Collisions=0/66=0%
+# Finished Make data base on Mon Aug  1 15:27:24 2022
+
+ 

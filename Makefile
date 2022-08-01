@@ -29,7 +29,7 @@ binary:
 	go build -o bin/$(BIN_NAME) -v
 
 # build all the binaries
-binaries: clean-bin binary-linux-amd64 # binary-linux-386 binary-linux-arm binary-freebsd-amd64 binary-freebsd-386
+binaries: clean-bin binary-linux-amd64 binary-linux-arm64 # binary-linux-386 binary-linux-arm binary-freebsd-amd64 binary-freebsd-386
 
 clean-bin:
 	rm -Rf bin/*
@@ -39,6 +39,13 @@ binary-linux-amd64: export GOOS=linux
 binary-linux-amd64: export GOARCH=amd64
 binary-linux-amd64: export GO15VENDOREXPERIMENT=1
 binary-linux-amd64:
+	go build -o bin/$(GOOS)/$(GOARCH)/$(BIN_NAME) -v
+
+
+binary-linux-arm64: export GOOS=linux
+binary-linux-arm64: export GOARCH=arm64
+binary-linux-arm64: export GO15VENDOREXPERIMENT=1
+binary-linux-arm64:
 	go build -o bin/$(GOOS)/$(GOARCH)/$(BIN_NAME) -v
 
 # docker doesn't currently support x32 architecture
