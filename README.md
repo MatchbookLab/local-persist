@@ -7,7 +7,7 @@ Create named local volumes that persist in the location(s) you want!
 Goals of this fork:
 
 1. Updated dependencies + updated Docker driver interface
-2. Build using Github actions
+2. Multi-arch support and build using Github actions
 3. Implement a V2 managed plugin, instead of a non-managed (legacy) plugin. A managed plugin makes life much easier, as there is no need for systemd and the plugin can simply be installed using `docker plugin install` However, it also comes with restrictions, as the data can now only be stored in the `/docker-data` directory
 
 ## Rationale
