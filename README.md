@@ -1,3 +1,11 @@
+# Changes
+
+1. V2 managed plugin
+2. Build using GitHub actions
+3. Updated dependencies
+
+
+
 # Local Persist Volume Plugin for Docker
 
 Fork of [local-persist](https://github.com/MatchbookLab/local-persist)

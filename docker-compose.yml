@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  one:
+    image: nginx
+    volumes:
+      - nginx_config:/etc/nginx
+
+volumes:
+  nginx_config:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /docker-data/encrypted/nginx
