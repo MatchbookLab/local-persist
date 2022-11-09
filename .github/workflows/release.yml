@@ -56,7 +56,7 @@ jobs:
         run: sudo ./scripts/build.sh ${{ matrix.arch }}
 
       - name: Install plugin
-        run: sudo ./scripts/install.sh ${{ steps.vars.outputs.tag }}
+        run: sudo ./scripts/install.sh ${{ steps.vars.outputs.tag }}-${{ matrix.arch-short}}
 
       - name: Push plugin
         run: docker plugin push ghcr.io/carbonique/local-persist:${{ steps.vars.outputs.tag }}-${{ matrix.arch-short}}
