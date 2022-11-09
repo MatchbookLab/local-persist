@@ -1,12 +1,8 @@
 name: Release to ghcr
 
 on:
-  push:
-    branches:
-      - 'master'
-
-#  release:
-#    types: [created]
+  release:
+    types: [created]
 
 jobs:
   release:
@@ -27,12 +23,11 @@ jobs:
 
       - name: Get latest tag
         id: vars
-        run: echo ::set-output name=tag::v2.0.0
-        #echo ::set-output name=tag::${GITHUB_REF:10}
+        run: echo ::set-output name=tag::${GITHUB_REF:10}
       
       - uses: actions/checkout@v3
-#        with:
-#          ref: ${{ steps.vars.outputs.tag }}
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
 
       - name: Docker Login
         uses: docker/login-action@v2.1.0
