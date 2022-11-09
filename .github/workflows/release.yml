@@ -54,4 +54,4 @@ jobs:
         run: sudo ./scripts/install.sh ${{ steps.vars.outputs.tag }}
 
       - name: Push plugin
-        run: docker plugin push ghrc.io/carbonique/local-persist:${{ steps.vars.outputs.tag }}
+        run: docker plugin push ghcr.io/carbonique/local-persist:${{ steps.vars.outputs.tag }}
