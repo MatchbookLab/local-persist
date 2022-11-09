@@ -1,24 +1,33 @@
 name: Release to ghcr
 
 on:
-  release:
-    types: [created]
-
+  push:
+    branches:
+      - 'master'
+#  release:
+#    types: [created]
+#echo ::set-output name=tag::${GITHUB_REF:10}
 jobs:
 
   release:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ["linux/amd64", "linux/arm64", "linux/arm/v7"]
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Get latest tag
         id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF:10}
-
-      - name: Clone repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ steps.vars.outputs.tag }}
+        run: echo ::set-output name=tag::v2.0.0
+      
+      - uses: actions/checkout@v3
+      
+#      - name: Clone repository
+#        uses: actions/checkout@v2
+#        with:
+#          ref: ${{ steps.vars.outputs.tag }}
 
       - name: Docker Login
         uses: docker/login-action@v2.1.0
@@ -27,14 +36,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64,arm
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set up Docker data directory
-        run: sudo mkdir -p /docker-data
-
       - name: Build rootfs
-        run: sudo ./scripts/build.sh ${{ steps.vars.outputs.tag }}
+        run: sudo ./scripts/build.sh ${{ matrix.arch }}
 
       - name: Install plugin
         run: sudo ./scripts/install.sh ${{ steps.vars.outputs.tag }}

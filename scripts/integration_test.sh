@@ -3,7 +3,7 @@
 set -e
 
 TAG=$1
-PLUGIN=ghrc.io/carbonique/local-persist:${TAG}
+PLUGIN=ghcr.io/carbonique/local-persist:${TAG}
 
 function create-volume {
     VOLUME=`docker volume create --driver=${PLUGIN} --opt mountpoint=/docker-data/local-persist-integration/ --name=test-data`

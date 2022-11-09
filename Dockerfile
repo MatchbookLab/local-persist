@@ -2,7 +2,7 @@ FROM golang:1.18 as builder
 
 WORKDIR /build
 COPY . .
-RUN env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o local-persist
+RUN env CGO_ENABLED=0 go build -o local-persist
 
 # generate clean, final image for end users
 FROM alpine
