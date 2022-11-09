@@ -26,7 +26,10 @@ Docker Engine’s plugin system allows you to install, start, stop, and remove p
 
 The plugin can be installed using `docker plugin install ghcr.io/carbonique/local-persist:<VERSION>`
 
-Check the local-persist [ghcr](https://github.com/Carbonique/local-persist/pkgs/container/local-persist/versions) for the latest version. (Note: do not use the `docker pull` command, even though ghcr thinks you should use it. Use `docker plugin install`)
+Check the local-persist [ghcr](https://github.com/Carbonique/local-persist/pkgs/container/local-persist/versions) for the latest version. Make sure you:
+
+1. Select the correct architecture
+2. You do not use the `docker pull` command, even though ghcr thinks you should use it. Use `docker plugin install` instead
 
 ## Usage: Creating Volumes
 
