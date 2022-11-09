@@ -24,7 +24,9 @@ This `local-persist` approach gives you the same benefits of standalone Volumes 
 
 Docker Engine’s plugin system allows you to install, start, stop, and remove plugins using Docker Engine.
 
-The plugin can be installed using `docker plugin install`
+The plugin can be installed using `docker plugin install ghcr.io/carbonique/local-persist:<VERSION>`
+
+Check the local-persist [ghcr](https://github.com/Carbonique/local-persist/pkgs/container/local-persist/versions) for the latest version. (Note: do not use the `docker pull` command, even though ghcr thinks you should use it. Use `docker plugin install`)
 
 ## Usage: Creating Volumes
 
