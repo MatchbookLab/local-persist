@@ -1,5 +1,8 @@
-docker plugin disable local-persist
-docker plugin rm local-persist
-docker plugin create local-persist ./plugin
-docker plugin enable local-persist
+TAG=$1
+PLUGIN=ghrc.io/carbonique/local-persist:${TAG}
+
+docker plugin disable ${PLUGIN}
+docker plugin rm ${PLUGIN}
+docker plugin create ${PLUGIN} ./plugin
+docker plugin enable ${PLUGIN}
 

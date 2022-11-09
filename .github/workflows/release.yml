@@ -1,0 +1,43 @@
+name: Release to ghcr
+
+on:
+  release:
+    types: [created]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get latest tag
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF:10}
+
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker data directory
+        run: sudo mkdir -p /docker-data
+
+      - name: Build rootfs
+        run: sudo ./scripts/build.sh ${{ steps.vars.outputs.tag }}
+
+      - name: Install plugin
+        run: sudo ./scripts/install.sh ${{ steps.vars.outputs.tag }}
+
+      - name: Push plugin
+        run: docker plugin push ghrc.io/carbonique/local-persist:${{ steps.vars.outputs.tag }}

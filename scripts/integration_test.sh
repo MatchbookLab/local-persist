@@ -2,8 +2,11 @@
 
 set -e
 
+TAG=$1
+PLUGIN=ghrc.io/carbonique/local-persist:${TAG}
+
 function create-volume {
-    VOLUME=`docker volume create --driver=local-persist --opt mountpoint=/docker-data/local-persist-integration/ --name=test-data`
+    VOLUME=`docker volume create --driver=${PLUGIN} --opt mountpoint=/docker-data/local-persist-integration/ --name=test-data`
 }
 
 function create-containers {
@@ -21,9 +24,6 @@ function clean {
     docker rm -f $TWO
     docker volume rm $VOLUME
 }
-
-mkdir -p /docker-data
-
 # setup
 create-volume
 create-containers
@@ -37,7 +37,6 @@ check-containers
 # delete everything (start over point)
 clean
 
-
 # do it all again, but this time, DON'T manually copy a file... it should have persisted from before!
 create-volume
 create-containers
@@ -46,5 +45,6 @@ create-containers
 check-containers
 
 clean
+
 
 echo -e "\nSuccess!"

@@ -1,10 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  push
 
 jobs:
 
@@ -18,23 +15,23 @@ jobs:
         with:
           go-version: 1.18
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       - name: Go Mod
         run: go mod download && go mod vendor
 
-      - name: Make Binaries
-        run: make binary-linux-amd64
+      - name: Unit Tests
+        run: sudo go test
 
-      - name: Change Permissions
-        run: chmod +x ./bin/linux/amd64/local-persist
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Start in the Background
-        run: sudo ./bin/linux/amd64/local-persist &
+      - name: Set up Docker data directory
+        run: sudo mkdir -p /docker-data
+
+      - name: Build rootfs
+        run: sudo ./scripts/build.sh "ci"
+
+      - name: Install plugin
+        run: sudo ./scripts/install.sh "ci"
 
       - name: Integration Tests
-        run: ./scripts/integration.sh
-
-      - name: Unit Tests
-        run: make test
+        run: sudo ./scripts/integration_test.sh "ci"

@@ -1,6 +1,6 @@
 {
   "description": "Named volumes that persist where you specify",
-  "documentation": "https://github.com/CWSpear/local-persist#usage-creating-volumes",
+  "documentation": "https://github.com/Carbonique/local-persist",
   "args": {
     "description": "",
     "name": "",
