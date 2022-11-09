@@ -23,7 +23,7 @@ jobs:
         run: echo ::set-output name=tag::v2.0.0
       
       - uses: actions/checkout@v3
-      
+
 #      - name: Clone repository
 #        uses: actions/checkout@v2
 #        with:
@@ -43,6 +43,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker data directory
+        run: sudo mkdir -p /docker-data
 
       - name: Build rootfs
         run: sudo ./scripts/build.sh ${{ matrix.arch }}
