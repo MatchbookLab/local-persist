@@ -36,7 +36,7 @@ Check the local-persist [ghcr](https://github.com/Carbonique/local-persist/pkgs/
 Then to use, you can create a volume with this plugin (this example will be for a shared folder for images):
 
 ```shell
-docker volume create -d local-persist -o mountpoint=/docker-data/images --name=images
+docker volume create -d ghcr.io/carbonique/local-persist:${TAG} -o mountpoint=/docker-data/images --name=images
 ```
 
 Then if you create a container, you can connect it to this Volume:
