@@ -1,14 +1,15 @@
-FROM debian
+FROM golang:1.18 as builder
 
-ENV VERSION v1.3.0
-ENV ARCH amd64
+WORKDIR /build
+COPY . .
+RUN env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o local-persist
 
-ADD https://github.com/CWSpear/local-persist/releases/download/${VERSION}/local-persist-linux-${ARCH} /usr/bin/docker-volume-local-persist
-RUN chmod +x /usr/bin/docker-volume-local-persist
+# generate clean, final image for end users
+FROM alpine
 
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.1.1/dumb-init_1.1.1_amd64 /usr/bin/dumb-init
-RUN chmod +x /usr/bin/dumb-init
+COPY --from=builder /build/local-persist local-persist
 
-RUN mkdir -p /var/lib/docker/plugin-data/
+RUN mkdir -p /run/docker/plugins /state /docker-data
 
-CMD ["dumb-init", "/usr/bin/docker-volume-local-persist"]
+# executable
+ENTRYPOINT [ "/local-persist" ]

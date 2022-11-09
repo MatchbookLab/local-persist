@@ -1,7 +1,0 @@
-FROM golang:1.18
-
-WORKDIR $GOPATH/src/local-persist
-
-COPY . .
-
-CMD ["make", "binaries"]

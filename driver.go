@@ -26,7 +26,7 @@ var (
 )
 
 const (
-	stateDir  = "/var/lib/docker/plugin-data/"
+	stateDir  = "/state"
 	stateFile = "local-persist.json"
 )
 

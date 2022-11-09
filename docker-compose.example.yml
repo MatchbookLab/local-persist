@@ -19,4 +19,4 @@ volumes:
   data:
     driver: local-persist
     driver_opts:
-      mountpoint: /data/local-persist/data
+      mountpoint: /docker-data/local-persist/data
