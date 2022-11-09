@@ -9,10 +9,11 @@ import (
 )
 
 func main() {
-	d := newLocalPersistDriver()
+	driver := newLocalPersistDriver()
 
-	h := volume.NewHandler(d)
 	u, _ := user.Lookup("root")
-	gid, _ := strconv.Atoi(u.Gid)
-	fmt.Println(h.ServeUnix(d.name, gid))
+	uid, _ := strconv.Atoi(u.Uid)
+
+	handler := volume.NewHandler(driver)
+	fmt.Println(handler.ServeUnix(driver.name, uid))
 }

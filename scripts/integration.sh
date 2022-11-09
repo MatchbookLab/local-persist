@@ -3,7 +3,7 @@
 set -e
 
 function create-volume {
-    VOLUME=`docker volume create --driver=local-persist --opt mountpoint=/tmp/local-persist-integration/ --name=test-data`
+    VOLUME=`docker volume create --driver=local-persist --opt mountpoint=/docker-data/local-persist-integration/ --name=test-data`
 }
 
 function create-containers {
@@ -21,6 +21,8 @@ function clean {
     docker rm -f $TWO
     docker volume rm $VOLUME
 }
+
+mkdir -p /docker-data
 
 # setup
 create-volume

@@ -30,14 +30,14 @@ func TestCreate(t *testing.T) {
 
 	defaultCleanupHelper(driver, t)
 
+	req := &volume.CreateRequest{Name: "defaultTestName"}
 	// test that options are required
-	res := driver.Create(volume.Request{
-		Name: defaultTestName,
-	})
+	err = driver.Create(req)
 
-	if res.Err != "The `mountpoint` option is required" {
-		t.Error("Should error out without mountpoint option")
+	if err.Error() != "the `mountpoint` option is required" {
+		t.Error(err)
 	}
+	defaultCleanupHelper(driver, t)
 }
 
 func TestGet(t *testing.T) {
@@ -45,9 +45,15 @@ func TestGet(t *testing.T) {
 
 	defaultCreateHelper(driver, t)
 
-	res := driver.Get(volume.Request{Name: defaultTestName})
-	if res.Err != "" {
+	req := &volume.GetRequest{Name: defaultTestName}
+
+	res, err := driver.Get(req)
+	if err != nil {
 		t.Error("Should have found a volume!")
+	}
+
+	if res.Volume.Name != defaultTestName {
+		t.Error("Incorrect volume name was returned")
 	}
 
 	defaultCleanupHelper(driver, t)
@@ -60,14 +66,26 @@ func TestList(t *testing.T) {
 	mountpoint := defaultTestMountpoint + "2"
 
 	defaultCreateHelper(driver, t)
-	res := driver.List(volume.Request{})
+
+	res, err := driver.List()
+
+	if err != nil {
+		t.Error("List returned error")
+	}
+
 	if len(res.Volumes) != 1 {
 		t.Error("Should have found 1 volume!")
 	}
 
 	createHelper(driver, t, name, mountpoint)
-	res2 := driver.List(volume.Request{})
-	if len(res2.Volumes) != 2 {
+
+	res, err = driver.List()
+
+	if err != nil {
+		t.Error("List returned error2")
+	}
+
+	if len(res.Volumes) != 2 {
 		t.Error("Should have found 1 volume!")
 	}
 
@@ -75,41 +93,117 @@ func TestList(t *testing.T) {
 	cleanupHelper(driver, t, name, mountpoint)
 }
 
-func TestMountUnmountPath(t *testing.T) {
+func TestMount(t *testing.T) {
 	driver := newLocalPersistDriver()
 
 	defaultCreateHelper(driver, t)
 
-	// mount, mount and path should have same output (they all use Path under the hood)
-	pathRes := driver.Path(volume.Request{Name: defaultTestName})
-	mountRes := driver.Mount(volume.MountRequest{Name: defaultTestName})
-	unmountRes := driver.Unmount(volume.UnmountRequest{Name: defaultTestName})
+	req := &volume.MountRequest{Name: defaultTestName}
+	_, err := driver.Mount(req)
 
-	if !(pathRes.Mountpoint == mountRes.Mountpoint &&
-		mountRes.Mountpoint == unmountRes.Mountpoint &&
-		unmountRes.Mountpoint == defaultTestMountpoint) {
-		t.Error("Mount, Unmount and Path should all return the same Mountpoint")
+	if err != nil {
+		t.Error("Error on mount")
 	}
+
+	// Remove a mountpoint, while volume still exists
+	err = os.Remove(defaultTestMountpoint)
+
+	if err != nil {
+		t.Error("Could not remove mountpoint")
+	}
+
+	_, err = driver.Mount(req)
+	if err == nil {
+		t.Error("Mountpoint was deleted but test did not error")
+	}
+
+	// Test to mount a existing file (should not be possible)
+	_, err = os.Create(defaultTestMountpoint)
+	if err != nil {
+		t.Error("Could not create mountpoint as file")
+	}
+	_, err = driver.Mount(req)
+	if err == nil {
+		t.Error("Mountpoint is a file but test did not error")
+	}
+	defaultCleanupHelper(driver, t)
 }
 
-func createHelper(driver localPersistDriver, t *testing.T, name string, mountpoint string) {
-	res := driver.Create(volume.Request{
+func TestUnmount(t *testing.T) {
+	driver := newLocalPersistDriver()
+
+	defaultCreateHelper(driver, t)
+
+	// Requesting an existing volume
+	req := &volume.UnmountRequest{Name: defaultTestName}
+
+	err := driver.Unmount(req)
+
+	if err != nil {
+		t.Error("Error on unmount")
+	}
+
+	// Requesting a non-existing volume
+	reqFail := &volume.UnmountRequest{Name: defaultTestName + "does_not_exist"}
+	err = driver.Unmount(reqFail)
+
+	if err == nil {
+		t.Error("Test should fail as volume does not exist")
+	}
+
+	defaultCleanupHelper(driver, t)
+
+}
+func TestPath(t *testing.T) {
+	driver := newLocalPersistDriver()
+
+	defaultCreateHelper(driver, t)
+	// Requesting an existing volume
+	req := &volume.PathRequest{Name: defaultTestName}
+
+	v, err := driver.Path(req)
+
+	if err != nil {
+		t.Error("Error on path")
+	}
+
+	if v.Mountpoint != defaultTestMountpoint {
+		t.Error("Mountpoint should be equal to defaultTestMountpoint")
+	}
+
+	// Requesting a non-existing volume
+	reqFail := &volume.PathRequest{Name: defaultTestName + "does_not_exist"}
+	_, err = driver.Path(reqFail)
+
+	if err == nil {
+		t.Error("Test should fail as volume does not exist")
+	}
+
+	defaultCleanupHelper(driver, t)
+
+}
+
+func createHelper(driver *localPersistDriver, t *testing.T, name string, mountpoint string) {
+
+	req := &volume.CreateRequest{
 		Name: name,
 		Options: map[string]string{
 			"mountpoint": mountpoint,
 		},
-	})
+	}
 
-	if res.Err != "" {
-		t.Error(res.Err)
+	err := driver.Create(req)
+
+	if err != nil {
+		t.Error(err)
 	}
 }
 
-func defaultCreateHelper(driver localPersistDriver, t *testing.T) {
+func defaultCreateHelper(driver *localPersistDriver, t *testing.T) {
 	createHelper(driver, t, defaultTestName, defaultTestMountpoint)
 }
 
-func cleanupHelper(driver localPersistDriver, t *testing.T, name string, mountpoint string) {
+func cleanupHelper(driver *localPersistDriver, t *testing.T, name string, mountpoint string) {
 	os.RemoveAll(mountpoint)
 
 	_, err := os.Stat(mountpoint)
@@ -117,14 +211,23 @@ func cleanupHelper(driver localPersistDriver, t *testing.T, name string, mountpo
 		t.Error("[Cleanup] Mountpoint still exists:", err.Error())
 	}
 
-	driver.Remove(volume.Request{Name: name})
+	removeReq := &volume.RemoveRequest{Name: name}
 
-	res := driver.Get(volume.Request{Name: name})
-	if res.Err == "" {
-		t.Error("[Cleanup] Volume still exists:", res.Err)
+	err = driver.Remove(removeReq)
+	if err != nil {
+		t.Error("Remove failed", err)
+	}
+
+	getReq := &volume.GetRequest{Name: name}
+
+	//Volume should be nil, as it is deleted
+	v, err := driver.Get(getReq)
+
+	if v.Volume != nil {
+		t.Error(err)
 	}
 }
 
-func defaultCleanupHelper(driver localPersistDriver, t *testing.T) {
+func defaultCleanupHelper(driver *localPersistDriver, t *testing.T) {
 	cleanupHelper(driver, t, defaultTestName, defaultTestMountpoint)
 }

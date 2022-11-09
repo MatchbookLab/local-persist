@@ -1,1 +1,6 @@
 rootfs
+
+*.iml
+coverage.out
+vendor/
+tmp
