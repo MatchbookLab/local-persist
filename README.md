@@ -20,6 +20,26 @@ Even if something like Flocker is overkill for your needs, it can still be usefu
 
 This `local-persist` approach gives you the same benefits of standalone Volumes that `docker volume create ...` normally affords, while also allowing you to create Volumes that *persist*, thus giving those stateful containers their state. Read below how to install and use, then read more about the [benefits](#benefits) of this approach.
 
+Another option would be to bind mount named volumes like below. A disadvantage of the method below compared to `local-persist` is that the `/docker/sql` directory needs to be created by the user.
+
+```yml
+version: '3'
+services:
+  db:
+    image: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+volumes:
+  dbdata:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/docker/sql'
+```
+
+
+
 ## Installing & Running
 
 Docker Engine’s plugin system allows you to install, start, stop, and remove plugins using Docker Engine.
