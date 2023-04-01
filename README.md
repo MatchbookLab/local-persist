@@ -89,10 +89,10 @@ First make sure the directory `/docker-data` exists.
 
 To build run: `./scripts/build.sh <architecture>` (e.g.: `./scripts/build.sh amd64`) 
 
-To install run: `./scripts/install.sh <your-tag-for-the-plugin>` (e.g. `./scripts/install.sh latest`)
+To install run: `./scripts/install.sh <your-tag-for-the-plugin>` (e.g. `./scripts/install.sh local`)
 
-To test run: `./scripts/integration_test.sh <your-tag-for-the-plugin>` (e.g. `./scripts/integration_test.sh latest`)
+To test run: `./scripts/integration_test.sh <your-tag-for-the-plugin>` (e.g. `./scripts/integration_test.sh local`)
 
-To cleanup run: `./scripts/cleanup_plugin.sh <your-tag-for-the-plugin>` (e.g. `./scripts/cleanup_plugin.sh latest`)
+To cleanup run: `./scripts/cleanup_plugin.sh <your-tag-for-the-plugin>` (e.g. `./scripts/cleanup_plugin.sh local`)
 
-Or all in one go: `./scripts/build-install-integration_test-cleanup_plugin.sh <your-tag-for-the-plugin>` (e.g. `./scripts/build-install-integration_test-cleanup_plugin.sh latest`)
+Or all in one go: `./scripts/build-install-integration_test-cleanup_plugin.sh` (e.g. `./scripts/build-install-integration_test-cleanup_plugin.sh`)
