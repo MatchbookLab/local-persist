@@ -8,7 +8,7 @@ Goals of this fork:
 
 1. Updated dependencies + updated Docker driver interface
 2. Multi-arch support and build using Github actions
-3. Implement a V2 managed plugin, instead of a non-managed (legacy) plugin. A managed plugin makes life much easier, as there is no need for systemd and the plugin can simply be installed using `docker plugin install` However, it also comes with restrictions, as the data can now only be stored in the `/docker-data` directory
+3. Implement a V2 managed plugin, instead of a non-managed (legacy) plugin. A managed plugin makes life much easier, as there is no need for systemd and the plugin can simply be installed using `docker plugin install`
 
 ## Rationale
 
@@ -38,8 +38,6 @@ volumes:
       device: '/docker/sql'
 ```
 
-
-
 ## Installing & Running
 
 Docker Engine’s plugin system allows you to install, start, stop, and remove plugins using Docker Engine.
@@ -53,7 +51,7 @@ Make sure you:
 1. Select the correct architecture
 2. You do not use the `docker pull` command, even though ghcr thinks you should use it. Use `docker plugin install` instead
 
-## Usage: Creating Volumes
+### Usage: Creating Volumes
 
 Then to use, you can create a volume with this plugin (this example will be for a shared folder for images):
 
@@ -70,6 +68,12 @@ docker run -d -v images:/path/to/images/on/two/ two
 ```
 
 Also, see [docker-compose.example.yml](docker-compose.example.yml) for an example to do something like this with Docker Compose (needs Compose 1.6+ which needs Engine 1.10+).
+
+
+### Configuring the plugin
+By default the directory `docker-data` on the Docker host will be used for storing the volumes. This can be overridden by setting the option `data.source`  (`docker plugin install ghcr.io/carbonique/local-persist:<VERSION> --alias=local-persist data.source=<any_folder>`)
+
+The directory `/var/lib/docker/plugins` will be used for storing the volume state. This can be overridden by setting the option `state.source` (`docker plugin install ghcr.io/carbonique/local-persist:<VERSION> --alias=local-persist state.source=<any_folder>`)
 
 ## Benefits
 

@@ -12,7 +12,7 @@
   ],
   "env": [
     {
-      "description": "Debug flag (NYI)",
+      "description": "Debug flag",
       "name": "DEBUG",
       "settable": [
         "value"
@@ -46,12 +46,12 @@
       "type": "bind"
     },
     {
-      "description": "A mount to share your data on. Source must be an existing path on host. Destination is path within the container. Easiest to keep destination and source equal, so we do not have to map paths when creating them through the driver",
+      "description": "A mount to share your data on. Source must be an existing path on host. Destination is path within the container.",
       "destination": "/docker-data",
       "options": [
         "rbind"
       ],
-      "name": "volumes",
+      "name": "data",
       "source": "/docker-data",
       "settable": [
         "source"
