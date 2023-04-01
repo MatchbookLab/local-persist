@@ -1,6 +1,6 @@
 module github.com/Carbonique/local-persist
 
-go 1.18
+go 1.19
 
 require (
 	github.com/docker/go-plugins-helpers v0.0.0-20211224144127-6eecb7beb651

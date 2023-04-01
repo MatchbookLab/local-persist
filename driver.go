@@ -13,10 +13,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	stateDir  = "/state"
-	stateFile = "local-persist.json"
+var (
+  stateDir string
+  stateFile = "local-persist.json"
 )
+
+func init() {
+  // Hacky way to set config for unit tests.
+  // Source: https://stackoverflow.com/a/57964979
+ 
+  if len(os.Args) > 1 && os.Args[1][:5] == "-test" {
+    log.Println("testing")//special test setup goes goes here
+      
+    stateDir = "./test/state"
+	  if _, err := os.Stat(stateDir); errors.Is(err, os.ErrNotExist) {
+		  err := os.MkdirAll(stateDir, os.ModePerm)
+		  if err != nil {
+			  log.Println(err)
+		  }
+	  }
+  } else {
+    stateDir = "/state"
+  }
+}
 
 type localPersistDriver struct {
 	volumes map[string]string

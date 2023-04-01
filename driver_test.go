@@ -3,14 +3,23 @@ package main
 import (
 	"os"
 	"testing"
-
+  "errors"
 	"github.com/docker/go-plugins-helpers/volume"
 )
 
 var (
 	defaultTestName       = "test-volume"
-	defaultTestMountpoint = "/tmp/data/local-persist-test"
+	defaultTestMountpoint = "./test/data/local-persist-test"
 )
+
+func init(){
+  if _, err := os.Stat(defaultTestMountpoint); errors.Is(err, os.ErrNotExist) {
+    err := os.MkdirAll(defaultTestMountpoint, os.ModePerm)
+    if err != nil {
+      os.Exit(1)
+    }
+  }
+}
 
 func TestCreate(t *testing.T) {
 	driver := newLocalPersistDriver()

@@ -87,6 +87,8 @@ NOTE: the scripts below assume the user can run `docker` commands without needin
 
 First make sure the directory `/docker-data` exists.
 
+To unit test run: `go test`
+
 To build run: `./scripts/build.sh <architecture>` (e.g.: `./scripts/build.sh amd64`) 
 
 To install run: `./scripts/install.sh <your-tag-for-the-plugin>` (e.g. `./scripts/install.sh local`)

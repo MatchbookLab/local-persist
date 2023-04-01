@@ -30,6 +30,17 @@ jobs:
         with:
           ref: ${{ steps.vars.outputs.tag }}
 
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Go Mod
+        run: go mod download && go mod vendor
+
+      - name: Unit Tests
+        run: go test
+
       - name: Docker Login
         uses: docker/login-action@v2.1.0
         with:
