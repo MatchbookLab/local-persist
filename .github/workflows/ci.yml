@@ -6,22 +6,41 @@ on:
       - 'master'
 
 jobs:
-
-  publish:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ["linux/amd64", "linux/arm64", "linux/arm/v7"]
+        include:
+        - arch-short: amd64
+          arch: linux/amd64
+        - arch-short: arm64
+          arch: linux/arm64
+        - arch-short: armv7
+          arch: linux/arm/v7
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
+      - name: Set tag variable 
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF##*/}
+      
+      - uses: actions/checkout@v3
         with:
-          go-version: 1.18
+          ref: ${{ steps.vars.outputs.tag }}
 
-      - name: Go Mod
-        run: go mod download && go mod vendor
+      - name: Docker Login
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Unit Tests
-        run: sudo go test
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64,arm
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -30,10 +49,14 @@ jobs:
         run: sudo mkdir -p /docker-data
 
       - name: Build rootfs
-        run: sudo ./scripts/build.sh "ci"
+        run: sudo ./scripts/build.sh ${{ matrix.arch }}
 
       - name: Install plugin
-        run: sudo ./scripts/install.sh "ci"
+        run: sudo ./scripts/install.sh CI-${{ steps.vars.outputs.tag }}-${{ matrix.arch-short }}
+      
+      - name: Test plugin
+        run: sudo ./scripts/integration_test.sh CI-${{ steps.vars.outputs.tag }}-${{ matrix.arch-short }}
 
-      - name: Integration Tests
-        run: sudo ./scripts/integration_test.sh "ci"
+      - name: Push plugin
+        run: docker plugin push ghcr.io/carbonique/local-persist:CI-${{ steps.vars.outputs.tag }}-${{ matrix.arch-short}}
+
