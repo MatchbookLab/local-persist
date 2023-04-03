@@ -8,7 +8,7 @@
     "value": null
   },
   "entrypoint": [
-    "/local-persist"
+    "/usr/bin/local-persist"
   ],
   "env": [
     {
@@ -33,13 +33,13 @@
   },
   "mounts": [
     {
-      "description": "A place to store the plugin state so it can restore in between restarts",
-      "destination": "/state",
+      "description": "A place to store the plugin state so it can restore in between restarts. Source must be an existing path on host. Destination is path within the container.",
+      "destination": "/local-persist/state",
       "options": [
         "rbind"
       ],
       "name": "state",
-      "source": "/var/lib/docker/plugins",
+      "source": "/docker-plugins/local-persist/state",
       "settable": [
         "source"
       ],
@@ -47,17 +47,17 @@
     },
     {
       "description": "A mount to share your data on. Source must be an existing path on host. Destination is path within the container.",
-      "destination": "/docker-data",
+      "destination": "/local-persist/data",
       "options": [
         "rbind"
       ],
       "name": "data",
-      "source": "/docker-data",
+      "source": "/docker-plugins/local-persist/data",
       "settable": [
         "source"
       ],
       "type": "bind"
     }
   ],
-  "propagatedMount": "/docker-data"
+  "propagatedMount": "/local-persist/data"
 }

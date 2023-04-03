@@ -6,45 +6,60 @@ TAG=$1
 PLUGIN=ghcr.io/carbonique/local-persist:${TAG}
 
 function create-volume {
-    VOLUME=`docker volume create --driver=${PLUGIN} --opt mountpoint=/docker-data/local-persist-integration/ --name=test-data`
+  printf "\nCreating volume \n"
+  VOLUME=`docker volume create --driver=${PLUGIN} --name=test-data $@`
 }
 
 function create-containers {
-    ONE=`docker run -d -v test-data:/app/data/ alpine sleep 30`
-    TWO=`docker run -d -v test-data:/src/data/ alpine sleep 30`
+  printf "\nCreating containers \n"
+  ONE=`docker run -d -v test-data:/app/data/ alpine sleep 30`
+  TWO=`docker run -d -v test-data:/src/data/ alpine sleep 30`
 }
 
 function check-containers {
-    (docker exec $ONE cat /app/data/test.txt | grep 'Cameron Spear') || exit 111
-    (docker exec $TWO cat /src/data/test.txt | grep 'Cameron Spear') || exit 222
+  printf "\nChecking containers \n"
+  (docker exec $ONE cat /app/data/test.txt | grep 'Cameron Spear') || exit 111
+  (docker exec $TWO cat /src/data/test.txt | grep 'Cameron Spear') || exit 222
 }
 
 function clean {
-    docker rm -f $ONE
-    docker rm -f $TWO
-    docker volume rm $VOLUME
+  printf "\nClean \n"
+  docker rm -f $ONE
+  docker rm -f $TWO
+  docker volume rm $VOLUME
 }
-# setup
-create-volume
-create-containers
 
-# copy a test file (note how this subtly breaks integration tests if my name is removed from the LICENSE ;-))
-docker cp LICENSE $ONE:/app/data/test.txt
+function test {
+  printf "\nRunning test \n"
+  create-volume $1
+  create-containers
 
-# check that the file exists in both
-check-containers
+  # copy a test file (note how this subtly breaks integration tests if my name is removed from the LICENSE ;-))
+  docker cp LICENSE $ONE:/app/data/test.txt
 
-# delete everything (start over point)
-clean
+  # check that the file exists in both
+  check-containers
 
-# do it all again, but this time, DON'T manually copy a file... it should have persisted from before!
-create-volume
-create-containers
+  # delete everything (start over point)
+  clean
 
-# if we were just using the `local` driver, this step would fail
-check-containers
+  # do it all again, but this time, DON'T manually copy a file... it should have persisted from before!
+  create-volume $1
+  create-containers
 
-clean
+  # if we were just using the `local` driver, this step would fail
+  check-containers
 
+  clean
+}
+
+mkdir -p ./test
+# Run test with mountpoint
+test "--opt mountpoint=/local-persist-integration"
+
+printf "\nSecond run without mountpoint option"
+
+# run test without mountpoint
+test 
 
 echo -e "\nSuccess!"
