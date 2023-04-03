@@ -1,4 +1,4 @@
-package main
+package driver
 
 import (
 	"encoding/json"
@@ -7,62 +7,58 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"strconv"
 	"sync"
 
 	"github.com/docker/go-plugins-helpers/volume"
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-  stateDir string
-  stateFile = "local-persist.json"
-)
-
-func init() {
-  // Hacky way to set config for unit tests.
-  // Source: https://stackoverflow.com/a/57964979
- 
-  if len(os.Args) > 1 && os.Args[1][:5] == "-test" {
-    log.Println("testing")//special test setup goes goes here
-      
-    stateDir = "./test/state"
-	  if _, err := os.Stat(stateDir); errors.Is(err, os.ErrNotExist) {
-		  err := os.MkdirAll(stateDir, os.ModePerm)
-		  if err != nil {
-			  log.Println(err)
-		  }
-	  }
-  } else {
-    stateDir = "/state"
-  }
-}
+const stateFile = "local-persist.json"
 
 type localPersistDriver struct {
-	volumes map[string]string
-	mutex   *sync.Mutex
-	debug   bool
-	name    string
+	Name      string
+	volumes   map[string]string
+	mutex     *sync.Mutex
+	debug     bool
+	statePath string
+	dataPath  string
 }
 
 type saveData struct {
 	State map[string]string `json:"state"`
 }
 
-func newLocalPersistDriver() *localPersistDriver {
+func NewLocalPersistDriver(statePath string, dataPath string) (*localPersistDriver, error) {
 	log.Info("Starting")
-
-	driver := localPersistDriver{
-		volumes: map[string]string{},
-		mutex:   &sync.Mutex{},
-		debug:   true,
-		name:    "local-persist",
+	debug := os.Getenv("DEBUG")
+	if ok, _ := strconv.ParseBool(debug); ok {
+		log.SetLevel(log.DebugLevel)
 	}
 
-	os.Mkdir(stateDir, 0700)
+	driver := localPersistDriver{
+		Name:      "local-persist",
+		volumes:   map[string]string{},
+		mutex:     &sync.Mutex{},
+		statePath: path.Join(statePath, stateFile),
+		dataPath:  dataPath,
+	}
+
+	var err error
+
+	err = ensureDir(statePath, 0700)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ensureDir(dataPath, 0755)
+	if err != nil {
+		return nil, err
+	}
 
 	driver.volumes, _ = driver.findExistingVolumesFromStateFile()
 	log.Infof("Found %d volumes on startup\n", len(driver.volumes))
-	return &driver
+	return &driver, nil
 }
 
 func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetResponse, error) {
@@ -114,7 +110,11 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 		return fmt.Errorf("the volume %s already exists", req.Name)
 	}
 
-	err := os.MkdirAll(mountpoint, 0755)
+	err := ensureDir(mountpoint, 0755)
+	if err != nil {
+		return err
+	}
+
 	log.Infof("Ensuring directory %s exists on host...\n", mountpoint)
 
 	if err != nil {
@@ -227,7 +227,7 @@ func (driver *localPersistDriver) volume(name string) *volume.Volume {
 }
 
 func (driver *localPersistDriver) findExistingVolumesFromStateFile() (map[string]string, error) {
-	path := path.Join(stateDir, stateFile)
+	path := driver.statePath
 	fileData, err := os.ReadFile(path)
 	if err != nil {
 		return map[string]string{}, err
@@ -252,6 +252,19 @@ func (driver *localPersistDriver) saveState(volumes map[string]string) error {
 		return err
 	}
 
-	path := path.Join(stateDir, stateFile)
-	return os.WriteFile(path, fileData, 0600)
+	return os.WriteFile(driver.statePath, fileData, 0600)
+}
+
+func ensureDir(path string, perm os.FileMode) error {
+
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		log.Infof("Trying to create path: %s with permissions: %o", path, perm)
+		err := os.MkdirAll(path, perm)
+		if err != nil {
+			return err
+		}
+		return err
+	}
+
+	return nil
 }
