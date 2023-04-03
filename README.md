@@ -84,7 +84,7 @@ And the contents of `/docker/sql` would not persist when deleted through `docker
 
 NOTE: the scripts below assume the user can run `docker` commands without needing `sudo`! If the user needs `sudo`, simply prepend the commands with `sudo` (`sudo ./scripts/build.sh`)
 
-To run unit tests `go test ./driver`
+To run unit tests: `go test ./driver`
 
 To build run: `./scripts/build.sh <architecture>` (e.g.: `./scripts/build.sh amd64`)
 
@@ -145,4 +145,6 @@ This makes it possible to save the state and Docker volume outside of the plugin
 
 #### PropagedMount
 
-The `propagatedMount` mounts the specified path within the plugin rootfs to make visible for the Docker daemon. If `propagedMount` would be omitted from the config, volume creation would still work. However, the daemon will not be able to mount the actual volumes, as it does not have access to the plugin rootfs. Making the volumes useless, as containers cannot mount them.
+`propagatedMount` mounts the specified path within the plugin rootfs to another directory (`/var/lib/docker/plugins/<plugin_id>/propagated-mount`) to prevent data loss upon [`docker plugin upgrade`](https://github.com/moby/moby/commit/e8307b868de9f19bb97f5cafcd727df5c5f501be) (data loss would not happen in our case, as `local-persist` already bind mounts the rootfs data directory to a directory on the host.).
+
+Additionally the `propagatedMount` is also needed to make the volumes mountable by the Docker dameon. If `propagedMount` is omitted from the config, volume creation would still work. However, the daemon will not be able to mount the actual volumes, as it does not have access to the plugin rootfs. Making the volumes useless, as containers cannot mount them.
