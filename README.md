@@ -6,7 +6,7 @@ Create named local volumes that persist in the location(s) you want!
 
 ## Usage
 
-1. Find the latest version in [Github releases](https://github.com/Carbonique/local-persist/releases) and find the corresponding image in [GHCR](https://github.com/Carbonique/local-persist/pkgs/container/local-persist)
+1. Find the [latest version](https://github.com/Carbonique/local-persist/releases) and find the corresponding image in [GHCR](https://github.com/Carbonique/local-persist/pkgs/container/local-persist)
 2. Install the plugin (Use `docker plugin install` instead of `docker pull`. GHCR is unaware that `local-persist` is a docker plugin)
 
 ```sh
