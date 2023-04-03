@@ -1,28 +1,29 @@
 package driver
 
 import (
-	"errors"
 	"fmt"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/docker/go-plugins-helpers/volume"
 )
 
 const (
-	defaultTestName       = "test-volume"
-	defaultTestMountpoint = "./test/data/local-persist-test"
-	stateDir              = "./test/state"
-	dataDir               = "./test/data"
+	defaultTestVolumeName = "test-volume"
+  baseDir               = "./test"
 )
 
-func init() {
-	if _, err := os.Stat(defaultTestMountpoint); errors.Is(err, os.ErrNotExist) {
-		err := os.MkdirAll(defaultTestMountpoint, os.ModePerm)
-		if err != nil {
-			os.Exit(1)
-		}
-	}
+var (
+	stateDir              = path.Join(baseDir, "state")
+	dataDir               = path.Join(baseDir, "data")
+	defaultTestMountpoint = path.Join(dataDir, defaultTestVolumeName)
+)
+
+func init(){
+  if _, err := os.Stat(baseDir); !os.IsNotExist(err) {
+	  os.RemoveAll(baseDir)
+  }
 }
 
 func TestCreate(t *testing.T) {
@@ -39,18 +40,27 @@ func TestCreate(t *testing.T) {
 	// test that volumes has one
 	if len(driver.volumes) != 1 {
 		t.Error("Driver should have exactly 1 volume")
-	}
+  }
 
 	defaultVolumeCleanupHelper(driver, t)
 
-	req := &volume.CreateRequest{Name: "defaultTestName"}
-	// test that options are required
+  // Test createion when no mountpoint is provided 
+	req := &volume.CreateRequest{Name: "no-mountpoint-provided"}
+	
 	err = driver.Create(req)
+	// test that a directory is created
+  _, err = os.Stat(path.Join(dataDir, "no-mountpoint-provided"))
+   if os.IsNotExist(err) {
+    t.Error("Mountpoint directory was not created:", err.Error())
+  }
 
-	if err.Error() != "the `mountpoint` option is required" {
-		t.Error(err)
-	}
-	defaultVolumeCleanupHelper(driver, t)
+  // test that volumes has one
+  if len(driver.volumes) != 1 {
+    t.Error("Driver should have exactly 1 volume")
+  }
+
+  volumeCleanupHelper(driver, t, "no-mountpoint-provided", path.Join(dataDir, "no-mountpoint-provided"))
+
 }
 
 func TestGet(t *testing.T) {
@@ -58,14 +68,14 @@ func TestGet(t *testing.T) {
 
 	defaultCreateVolumeHelper(driver, t)
 
-	req := &volume.GetRequest{Name: defaultTestName}
+	req := &volume.GetRequest{Name: defaultTestVolumeName}
 
 	res, err := driver.Get(req)
 	if err != nil {
 		t.Error("Should have found a volume!")
 	}
 
-	if res.Volume.Name != defaultTestName {
+	if res.Volume.Name != defaultTestVolumeName {
 		t.Error("Incorrect volume name was returned")
 	}
 
@@ -75,7 +85,7 @@ func TestGet(t *testing.T) {
 func TestList(t *testing.T) {
 	driver := createDriverHelper()
 
-	name := defaultTestName + "2"
+	name := defaultTestVolumeName + "2"
 	mountpoint := defaultTestMountpoint + "2"
 
 	defaultCreateVolumeHelper(driver, t)
@@ -103,7 +113,7 @@ func TestList(t *testing.T) {
 	}
 
 	defaultVolumeCleanupHelper(driver, t)
-	cleanupVolumeHelper(driver, t, name, mountpoint)
+	volumeCleanupHelper(driver, t, name, mountpoint)
 }
 
 func TestMount(t *testing.T) {
@@ -111,7 +121,7 @@ func TestMount(t *testing.T) {
 
 	defaultCreateVolumeHelper(driver, t)
 
-	req := &volume.MountRequest{Name: defaultTestName}
+	req := &volume.MountRequest{Name: defaultTestVolumeName}
 	_, err := driver.Mount(req)
 
 	if err != nil {
@@ -148,7 +158,7 @@ func TestUnmount(t *testing.T) {
 	defaultCreateVolumeHelper(driver, t)
 
 	// Requesting an existing volume
-	req := &volume.UnmountRequest{Name: defaultTestName}
+	req := &volume.UnmountRequest{Name: defaultTestVolumeName}
 
 	err := driver.Unmount(req)
 
@@ -157,7 +167,7 @@ func TestUnmount(t *testing.T) {
 	}
 
 	// Requesting a non-existing volume
-	reqFail := &volume.UnmountRequest{Name: defaultTestName + "does_not_exist"}
+	reqFail := &volume.UnmountRequest{Name: defaultTestVolumeName + "does_not_exist"}
 	err = driver.Unmount(reqFail)
 
 	if err == nil {
@@ -172,7 +182,7 @@ func TestPath(t *testing.T) {
 
 	defaultCreateVolumeHelper(driver, t)
 	// Requesting an existing volume
-	req := &volume.PathRequest{Name: defaultTestName}
+	req := &volume.PathRequest{Name: defaultTestVolumeName}
 
 	v, err := driver.Path(req)
 
@@ -185,7 +195,7 @@ func TestPath(t *testing.T) {
 	}
 
 	// Requesting a non-existing volume
-	reqFail := &volume.PathRequest{Name: defaultTestName + "does_not_exist"}
+	reqFail := &volume.PathRequest{Name: defaultTestVolumeName + "does_not_exist"}
 	_, err = driver.Path(reqFail)
 
 	if err == nil {
@@ -213,10 +223,10 @@ func createVolumeHelper(driver *localPersistDriver, t *testing.T, name string, m
 }
 
 func defaultCreateVolumeHelper(driver *localPersistDriver, t *testing.T) {
-	createVolumeHelper(driver, t, defaultTestName, defaultTestMountpoint)
+	createVolumeHelper(driver, t, defaultTestVolumeName, defaultTestVolumeName)
 }
 
-func cleanupVolumeHelper(driver *localPersistDriver, t *testing.T, name string, mountpoint string) {
+func volumeCleanupHelper(driver *localPersistDriver, t *testing.T, name string, mountpoint string) {
 	os.RemoveAll(mountpoint)
 
 	_, err := os.Stat(mountpoint)
@@ -242,7 +252,7 @@ func cleanupVolumeHelper(driver *localPersistDriver, t *testing.T, name string, 
 }
 
 func defaultVolumeCleanupHelper(driver *localPersistDriver, t *testing.T) {
-	cleanupVolumeHelper(driver, t, defaultTestName, defaultTestMountpoint)
+	volumeCleanupHelper(driver, t, defaultTestVolumeName, defaultTestVolumeName)
 }
 
 func createDriverHelper() *localPersistDriver {

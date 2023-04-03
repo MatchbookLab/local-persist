@@ -68,7 +68,7 @@ func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetRespon
 	defer driver.mutex.Unlock()
 
 	if !driver.exists(req.Name) {
-		log.Errorf("Couldn't find %s\n", req.Name)
+		log.Errorf("Could not find %s\n", req.Name)
 
 		return &volume.GetResponse{}, fmt.Errorf("no volume found with the name %s", req.Name)
 	}
@@ -100,22 +100,32 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 	driver.mutex.Lock()
 	defer driver.mutex.Unlock()
 
-	mountpoint := req.Options["mountpoint"]
-	if mountpoint == "" {
-		log.Infof("No %s option provided\n", "mountpoint")
-		return fmt.Errorf("the `mountpoint` option is required")
-	}
-
 	if driver.exists(req.Name) {
 		return fmt.Errorf("the volume %s already exists", req.Name)
 	}
 
+	mountpoint := req.Options["mountpoint"]
+
+  switch {
+  case mountpoint == "":
+      mountpoint = path.Join(driver.dataPath, req.Name)
+      log.Infof("No %s option provided. Setting mountpoint to %s \n", "mountpoint", mountpoint)
+
+  case mountpoint != "":
+    mountpoint = path.Join(driver.dataPath, mountpoint)
+    log.Infof("Mountpoint is %s\n", mountpoint)
+
+  case mountpoint == "/":
+    return fmt.Errorf("Mountpoint is not allowed to be %s \n", "/")
+
+  }
+	
 	err := ensureDir(mountpoint, 0755)
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Ensuring directory %s exists on host...\n", mountpoint)
+	log.Infof("Ensuring directory %s exists...\n", mountpoint)
 
 	if err != nil {
 		return fmt.Errorf("%17s could not create directory %s", " ", mountpoint)
@@ -160,7 +170,7 @@ func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.Mount
 
 	if !ok {
 		return &volume.MountResponse{}, fmt.Errorf("volume %s not found", req.Name)
-	} // Now check if the path still exists on the host
+	} // Now check if the path still exists
 	f, err := os.Stat(p)
 
 	// If the path does not exist
