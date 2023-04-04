@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"strconv"
 
-  "github.com/Carbonique/local-persist/driver"
+	"github.com/Carbonique/local-persist/driver"
 	"github.com/docker/go-plugins-helpers/volume"
 )
 

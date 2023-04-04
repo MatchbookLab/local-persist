@@ -28,7 +28,7 @@ type saveData struct {
 	State map[string]string `json:"state"`
 }
 
-func NewLocalPersistDriver(stateFilePath string, dataPath string) (*localPersistDriver, error) {
+func NewLocalPersistDriver(statePath string, dataPath string) (*localPersistDriver, error) {
 	log.Info("Starting")
 	debug := os.Getenv("DEBUG")
 	if ok, _ := strconv.ParseBool(debug); ok {
@@ -39,13 +39,13 @@ func NewLocalPersistDriver(stateFilePath string, dataPath string) (*localPersist
 		Name:          "local-persist",
 		volumes:       map[string]string{},
 		mutex:         &sync.Mutex{},
-		stateFilePath: path.Join(stateFilePath, STATEFILE),
+		stateFilePath: path.Join(statePath, STATEFILE),
 		dataPath:      dataPath,
 	}
 
 	var err error
 
-	err = ensureDir(stateFilePath, 0700)
+	err = ensureDir(statePath, 0700)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 		log.Infof("Mountpoint is %s\n", mountpoint)
 
 	case mountpoint == "/":
-		return fmt.Errorf("Mountpoint is not allowed to be %s \n", "/")
+		return fmt.Errorf("mountpoint is not allowed to be %s", "/")
 
 	}
 
@@ -147,6 +147,11 @@ func (driver *localPersistDriver) Remove(req *volume.RemoveRequest) error {
 	driver.mutex.Lock()
 	defer driver.mutex.Unlock()
 
+	_, ok := driver.volumes[req.Name]
+	// If the key exists
+	if !ok {
+		return fmt.Errorf("error deleting volume %s failed as it does not exist", req.Name)
+	}
 	delete(driver.volumes, req.Name)
 
 	err := driver.saveState(driver.volumes)
