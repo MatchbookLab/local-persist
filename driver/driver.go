@@ -14,22 +14,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const stateFile = "local-persist.json"
+const STATEFILE = "local-persist.json"
 
 type localPersistDriver struct {
-	Name      string
-	volumes   map[string]string
-	mutex     *sync.Mutex
-	debug     bool
-	statePath string
-	dataPath  string
+	Name          string
+	volumes       map[string]string
+	mutex         *sync.Mutex
+	stateFilePath string
+	dataPath      string
 }
 
 type saveData struct {
 	State map[string]string `json:"state"`
 }
 
-func NewLocalPersistDriver(statePath string, dataPath string) (*localPersistDriver, error) {
+func NewLocalPersistDriver(stateFilePath string, dataPath string) (*localPersistDriver, error) {
 	log.Info("Starting")
 	debug := os.Getenv("DEBUG")
 	if ok, _ := strconv.ParseBool(debug); ok {
@@ -37,16 +36,16 @@ func NewLocalPersistDriver(statePath string, dataPath string) (*localPersistDriv
 	}
 
 	driver := localPersistDriver{
-		Name:      "local-persist",
-		volumes:   map[string]string{},
-		mutex:     &sync.Mutex{},
-		statePath: path.Join(statePath, stateFile),
-		dataPath:  dataPath,
+		Name:          "local-persist",
+		volumes:       map[string]string{},
+		mutex:         &sync.Mutex{},
+		stateFilePath: path.Join(stateFilePath, STATEFILE),
+		dataPath:      dataPath,
 	}
 
 	var err error
 
-	err = ensureDir(statePath, 0700)
+	err = ensureDir(stateFilePath, 0700)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +55,7 @@ func NewLocalPersistDriver(statePath string, dataPath string) (*localPersistDriv
 		return nil, err
 	}
 
-	driver.volumes, _ = driver.findExistingVolumesFromStateFile()
+	driver.volumes, _ = driver.findExistingVolumesFromSTATEFILE()
 	log.Infof("Found %d volumes on startup\n", len(driver.volumes))
 	return &driver, nil
 }
@@ -106,20 +105,20 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 
 	mountpoint := req.Options["mountpoint"]
 
-  switch {
-  case mountpoint == "":
-      mountpoint = path.Join(driver.dataPath, req.Name)
-      log.Infof("No %s option provided. Setting mountpoint to %s \n", "mountpoint", mountpoint)
+	switch {
+	case mountpoint == "":
+		mountpoint = path.Join(driver.dataPath, req.Name)
+		log.Infof("No %s option provided. Setting mountpoint to %s \n", "mountpoint", mountpoint)
 
-  case mountpoint != "":
-    mountpoint = path.Join(driver.dataPath, mountpoint)
-    log.Infof("Mountpoint is %s\n", mountpoint)
+	case mountpoint != "":
+		mountpoint = path.Join(driver.dataPath, mountpoint)
+		log.Infof("Mountpoint is %s\n", mountpoint)
 
-  case mountpoint == "/":
-    return fmt.Errorf("Mountpoint is not allowed to be %s \n", "/")
+	case mountpoint == "/":
+		return fmt.Errorf("Mountpoint is not allowed to be %s \n", "/")
 
-  }
-	
+	}
+
 	err := ensureDir(mountpoint, 0755)
 	if err != nil {
 		return err
@@ -236,8 +235,8 @@ func (driver *localPersistDriver) volume(name string) *volume.Volume {
 	}
 }
 
-func (driver *localPersistDriver) findExistingVolumesFromStateFile() (map[string]string, error) {
-	path := driver.statePath
+func (driver *localPersistDriver) findExistingVolumesFromSTATEFILE() (map[string]string, error) {
+	path := driver.stateFilePath
 	fileData, err := os.ReadFile(path)
 	if err != nil {
 		return map[string]string{}, err
@@ -262,7 +261,7 @@ func (driver *localPersistDriver) saveState(volumes map[string]string) error {
 		return err
 	}
 
-	return os.WriteFile(driver.statePath, fileData, 0600)
+	return os.WriteFile(driver.stateFilePath, fileData, 0600)
 }
 
 func ensureDir(path string, perm os.FileMode) error {
