@@ -11,7 +11,7 @@ import (
 
 const (
 	defaultTestVolumeName = "test-volume"
-  baseDir               = "./test"
+	baseDir               = "./test"
 )
 
 var (
@@ -20,10 +20,10 @@ var (
 	defaultTestMountpoint = path.Join(dataDir, defaultTestVolumeName)
 )
 
-func init(){
-  if _, err := os.Stat(baseDir); !os.IsNotExist(err) {
-	  os.RemoveAll(baseDir)
-  }
+func init() {
+	if _, err := os.Stat(baseDir); !os.IsNotExist(err) {
+		os.RemoveAll(baseDir)
+	}
 }
 
 func TestCreate(t *testing.T) {
@@ -40,26 +40,26 @@ func TestCreate(t *testing.T) {
 	// test that volumes has one
 	if len(driver.volumes) != 1 {
 		t.Error("Driver should have exactly 1 volume")
-  }
+	}
 
 	defaultVolumeCleanupHelper(driver, t)
 
-  // Test createion when no mountpoint is provided 
+	// Test createion when no mountpoint is provided
 	req := &volume.CreateRequest{Name: "no-mountpoint-provided"}
-	
+
 	err = driver.Create(req)
 	// test that a directory is created
-  _, err = os.Stat(path.Join(dataDir, "no-mountpoint-provided"))
-   if os.IsNotExist(err) {
-    t.Error("Mountpoint directory was not created:", err.Error())
-  }
+	_, err = os.Stat(path.Join(dataDir, "no-mountpoint-provided"))
+	if os.IsNotExist(err) {
+		t.Error("Mountpoint directory was not created:", err.Error())
+	}
 
-  // test that volumes has one
-  if len(driver.volumes) != 1 {
-    t.Error("Driver should have exactly 1 volume")
-  }
+	// test that volumes has one
+	if len(driver.volumes) != 1 {
+		t.Error("Driver should have exactly 1 volume")
+	}
 
-  volumeCleanupHelper(driver, t, "no-mountpoint-provided", path.Join(dataDir, "no-mountpoint-provided"))
+	volumeCleanupHelper(driver, t, "no-mountpoint-provided", path.Join(dataDir, "no-mountpoint-provided"))
 
 }
 
