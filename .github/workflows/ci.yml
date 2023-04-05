@@ -13,12 +13,14 @@ jobs:
         arch: ["linux/amd64", "linux/arm64", "linux/arm/v7"]
         include:
         - arch-short: amd64
+          qemu-platform: amd64
           arch: linux/amd64
         - arch-short: arm64
+          qemu-platform: arm64
           arch: linux/arm64
         - arch-short: armv7
+          qemu-platform: arm
           arch: linux/arm/v7
-
     steps:
       - uses: actions/checkout@v3
 
@@ -51,13 +53,10 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
-          platforms: arm64,arm
+          platforms: ${{ matrix.qemu-platform}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
-      - name: Set up Docker data directory
-        run: sudo mkdir -p /docker-data
 
       - name: Build rootfs
         run: sudo ./scripts/build.sh ${{ matrix.arch }}

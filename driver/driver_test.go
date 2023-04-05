@@ -196,8 +196,15 @@ func Test_localPersistDriver_Create(t *testing.T) {
 	setupDirs(t)
 	defer cleanupBaseDir()
 
-	custom_mountpoint_option := make(map[string]string)
-	custom_mountpoint_option["mountpoint"] = "my-random-mountpoint"
+	customMountpointOption := make(map[string]string)
+	customMountpointOption["mountpoint"] = "my-random-mountpoint"
+
+	pathTraversalMountpointOption := make(map[string]string)
+	pathTraversalMountpointOption["mountpoint"] = "../.../../../path-traversal"
+
+	dataPathMountpointOption := make(map[string]string)
+	dataPathMountpointOption["mountpoint"] = DATAPATH
+
 	type directory struct {
 		path string
 	}
@@ -217,11 +224,11 @@ func Test_localPersistDriver_Create(t *testing.T) {
 			args: args{
 				req: &volume.CreateRequest{
 					Name:    volume1.Name,
-					Options: custom_mountpoint_option,
+					Options: customMountpointOption,
 				},
 			},
 			want: directory{
-				path: path.Join(DATAPATH, custom_mountpoint_option["mountpoint"]),
+				path: path.Join(DATAPATH, customMountpointOption["mountpoint"]),
 			},
 			wantErr: false,
 		},
@@ -237,6 +244,67 @@ func Test_localPersistDriver_Create(t *testing.T) {
 				path: path.Join(DATAPATH, volume2.Name),
 			},
 			wantErr: false,
+		},
+		{
+			name:   "Create volume and try path to use DATAPATH dir, should pass",
+			fields: returnFieldsEmptyVolume(),
+			args: args{
+				&volume.CreateRequest{
+					Name:    "test-volume",
+					Options: dataPathMountpointOption,
+				},
+			},
+			want: directory{
+				path: path.Join(DATAPATH, DATAPATH),
+			},
+			wantErr: false,
+		},
+		{
+			name:   "Create volume and try path to use DATAPATH as volumename, should pass",
+			fields: returnFieldsEmptyVolume(),
+			args: args{
+				&volume.CreateRequest{
+					Name: DATAPATH,
+				},
+			},
+			want: directory{
+				path: path.Join(DATAPATH, DATAPATH),
+			},
+			wantErr: false,
+		},
+		{
+			name:   "Create volume and try path traversal with mountoption, should fail",
+			fields: returnFieldsEmptyVolume(),
+			args: args{
+				&volume.CreateRequest{
+					Name:    volume2.Name,
+					Options: pathTraversalMountpointOption,
+				},
+			},
+			want:    directory{},
+			wantErr: true,
+		},
+		{
+			name:   "Create volume and try path traversal with volumename, should fail",
+			fields: returnFieldsEmptyVolume(),
+			args: args{
+				&volume.CreateRequest{
+					Name: "../../../../my-name",
+				},
+			},
+			want:    directory{},
+			wantErr: true,
+		},
+		{
+			name:   "Create volume and try path traversal with current directory and volumename, should fail",
+			fields: returnFieldsEmptyVolume(),
+			args: args{
+				&volume.CreateRequest{
+					Name: ".",
+				},
+			},
+			want:    directory{},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
