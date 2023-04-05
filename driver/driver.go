@@ -108,11 +108,11 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 	switch {
 	case mountpoint == "":
 		mountpoint = path.Join(driver.dataPath, req.Name)
-		log.Infof("No %s option provided. Setting mountpoint to %s \n", "mountpoint", mountpoint)
+		log.Debugf("No %s option provided. Setting mountpoint to %s \n", "mountpoint", mountpoint)
 
 	case mountpoint != "":
 		mountpoint = path.Join(driver.dataPath, mountpoint)
-		log.Infof("Mountpoint is %s\n", mountpoint)
+		log.Debugf("Mountpoint is %s\n", mountpoint)
 
 	case mountpoint == "/":
 		return fmt.Errorf("mountpoint is not allowed to be %s", "/")
