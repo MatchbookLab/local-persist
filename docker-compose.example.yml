@@ -18,5 +18,6 @@ services:
 volumes:
   data:
     driver: local-persist
+    # file will be mounted on <data.source>/test
     driver_opts:
-      mountpoint: /local-persist/data/test
+      mountpoint: test

@@ -7,7 +7,9 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/docker/go-plugins-helpers/volume"
@@ -56,7 +58,7 @@ func NewLocalPersistDriver(statePath string, dataPath string) (*localPersistDriv
 	}
 
 	driver.volumes, _ = driver.findExistingVolumesFromSTATEFILE()
-	log.Infof("Found %d volumes on startup\n", len(driver.volumes))
+	log.Infof("Found %d volumes on startup", len(driver.volumes))
 	return &driver, nil
 }
 
@@ -67,12 +69,12 @@ func (driver *localPersistDriver) Get(req *volume.GetRequest) (*volume.GetRespon
 	defer driver.mutex.Unlock()
 
 	if !driver.exists(req.Name) {
-		log.Errorf("Could not find %s\n", req.Name)
+		log.Errorf("Could not find %s", req.Name)
 
 		return &volume.GetResponse{}, fmt.Errorf("no volume found with the name %s", req.Name)
 	}
 
-	log.Infof("Found %s\n", req.Name)
+	log.Debugf("Found %s", req.Name)
 
 	return &volume.GetResponse{Volume: driver.volume(req.Name)}, nil
 }
@@ -88,7 +90,7 @@ func (driver *localPersistDriver) List() (*volume.ListResponse, error) {
 		volumes = append(volumes, driver.volume(name))
 	}
 
-	log.Infof("Found %d volumes on startup\n", len(driver.volumes))
+	log.Debugf("Found %d volumes", len(driver.volumes))
 
 	return &volume.ListResponse{Volumes: volumes}, nil
 }
@@ -108,23 +110,28 @@ func (driver *localPersistDriver) Create(req *volume.CreateRequest) error {
 	switch {
 	case mountpoint == "":
 		mountpoint = path.Join(driver.dataPath, req.Name)
-		log.Debugf("No %s option provided. Setting mountpoint to %s \n", "mountpoint", mountpoint)
+		log.Debugf("No %s option provided. Setting mountpoint to %s", "mountpoint", mountpoint)
 
 	case mountpoint != "":
 		mountpoint = path.Join(driver.dataPath, mountpoint)
-		log.Debugf("Mountpoint is %s\n", mountpoint)
-
-	case mountpoint == "/":
-		return fmt.Errorf("mountpoint is not allowed to be %s", "/")
+		log.Debugf("Mountpoint is %s", mountpoint)
 
 	}
 
-	err := ensureDir(mountpoint, 0755)
+	isSubDir, err := isSubDir(driver.dataPath, mountpoint)
+	if err != nil {
+		return err
+	}
+	if !isSubDir {
+		return err
+	}
+
+	err = ensureDir(mountpoint, 0755)
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Ensuring directory %s exists...\n", mountpoint)
+	log.Debugf("Ensuring directory %s exists", mountpoint)
 
 	if err != nil {
 		return fmt.Errorf("%17s could not create directory %s", " ", mountpoint)
@@ -159,7 +166,7 @@ func (driver *localPersistDriver) Remove(req *volume.RemoveRequest) error {
 		return fmt.Errorf("error %s", err)
 	}
 
-	log.Infof("Removed %s", req.Name)
+	log.Infof("Removed volume %s", req.Name)
 
 	return nil
 }
@@ -187,7 +194,7 @@ func (driver *localPersistDriver) Mount(req *volume.MountRequest) (*volume.Mount
 		return &volume.MountResponse{}, fmt.Errorf("Path %s for volume %s is a file, not a directory", p, req.Name)
 	}
 
-	log.Infof("Mounted %s", req.Name)
+	log.Debugf("Mounted %s", req.Name)
 
 	return &volume.MountResponse{Mountpoint: p}, nil
 }
@@ -202,7 +209,7 @@ func (driver *localPersistDriver) Path(req *volume.PathRequest) (*volume.PathRes
 	if !ok {
 		return &volume.PathResponse{}, fmt.Errorf("volume %s not found", req.Name)
 	}
-	log.Infof("Returned path %s", v)
+	log.Debugf("Returned path %s", v)
 
 	return &volume.PathResponse{Mountpoint: driver.volumes[req.Name]}, nil
 }
@@ -272,7 +279,7 @@ func (driver *localPersistDriver) saveState(volumes map[string]string) error {
 func ensureDir(path string, perm os.FileMode) error {
 
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		log.Infof("Trying to create path: %s with permissions: %o", path, perm)
+		log.Debugf("Trying to create path: %s with permissions: %o", path, perm)
 		err := os.MkdirAll(path, perm)
 		if err != nil {
 			return err
@@ -281,4 +288,49 @@ func ensureDir(path string, perm os.FileMode) error {
 	}
 
 	return nil
+}
+
+func testEq(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func isSubDir(basepath string, targetpath string) (bool, error) {
+	// TODO: is there a differnt way to this instead of comparing strings
+	absBasepath, err := filepath.Abs(basepath)
+	if err != nil {
+		return false, err
+	}
+	log.Debugf("absolute base path is %s", absBasepath)
+
+	absTargetpath, err := filepath.Abs(targetpath)
+	if err != nil {
+		return false, err
+	}
+	log.Debugf("absolute target path is %s", absTargetpath)
+	var isSubdir bool
+	switch {
+
+	//If they are the same path, absTargetpath is by definition not a subdirectory
+	case absBasepath == absTargetpath:
+		isSubdir = false
+
+	// Now test whether the targetpath is prefixed by the basepath
+	case strings.HasPrefix(absTargetpath, absBasepath):
+		isSubdir = true
+	}
+
+	log.Debugf("%s is subpath of %s: %v", absTargetpath, absBasepath, isSubdir)
+
+	if !isSubdir {
+		return isSubdir, fmt.Errorf("targetpath %s is not relative to basepath %s", absTargetpath, absBasepath)
+	}
+	return isSubdir, nil
 }
