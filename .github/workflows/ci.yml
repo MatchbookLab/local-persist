@@ -50,14 +50,9 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-        with:
-          platforms: arm64,arm
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
-      - name: Set up Docker data directory
-        run: sudo mkdir -p /docker-data
 
       - name: Build rootfs
         run: sudo ./scripts/build.sh ${{ matrix.arch }}
