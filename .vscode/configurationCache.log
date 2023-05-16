@@ -1,0 +1,1 @@
+{"buildTargets":["binaries","binary","binary-linux-amd64","clean-bin","coverage","docker-build","docker-run","release","run","test"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
