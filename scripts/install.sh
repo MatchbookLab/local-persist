@@ -18,7 +18,7 @@ if [[ "$UID" != 0 ]]; then
 fi
 
 
-if [[ ! "`which git 2> /dev/null`" == "" ]]; then
+if [[ `git -C "${gitDir}" rev-parse --is-inside-work-tree 2> /dev/null` == "true" ]]; then
     thisGit=`git -C "${gitDir}" config --get remote.origin.url`
     thisGit=${thisGit::-4}
     GITHUB_BINARY_BASE="${thisGit}/releases/download"
