@@ -24,14 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set tag variable
-        id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF##*/}
-
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ steps.vars.outputs.tag }}
-
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
