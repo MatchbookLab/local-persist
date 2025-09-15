@@ -1,3 +1,18 @@
+# Deprecated
+
+This project is not really needed anymore, and is not being maintained. You can effectively accomplish the same thing with a local volume thusly (Docker Compose example):
+
+```yaml
+volumes:
+  my-volume:
+    driver_opts:
+      type: none
+      device: /path/to/volume/on/host/
+      o: bind
+```
+
+-----------
+
 # Local Persist Volume Plugin for Docker
 
 [![Build Status](https://travis-ci.org/MatchbookLab/local-persist.svg?branch=master)](https://travis-ci.org/MatchbookLab/local-persist) [![Join the chat at https://gitter.im/MatchbookLab/local-persist](https://badges.gitter.im/MatchbookLab/local-persist.svg)](https://gitter.im/MatchbookLab/local-persist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
